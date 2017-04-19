@@ -1,0 +1,144 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+library(car)
+```
+
+
+**Variable Descriptions:**
+
+```{r load}
+load("bwght_w203.RData")
+desc
+```
+
+**Exploratory Analysis of each variable:**
+
+- mage
+
+```{r mage}
+hist(data$mage)
+summary(data$mage)
+```
+
+Nothing out of ordinary. Normal distribution. No transformation required
+
+- meduc
+
+```{r meduc}
+hist(data$meduc)
+summary(data$meduc)
+```
+
+Atypical distribution, with spikes probably due to education milestones. Probably could transform to indicator or categorical variable.
+
+- monpre
+
+```{r monpre}
+hist(data$monpre)
+summary(data$monpre)
+```
+
+What does zero mean? Should we take it out?
+
+- npvis 
+
+```{r npvis}
+hist(data$npvis, breaks = 40)
+summary(data$npvis)
+```
+
+Somewhat normal. Peak at around 11 (monthly visits?)
+
+- fage
+
+```{r fage}
+hist(data$fage, breaks = 40)
+summary(data$fage)
+```
+
+Nothing out of ordinary. Normal distribution, slight positive skew. No transformation required
+
+- meduc
+
+```{r feduc}
+hist(data$feduc)
+summary(data$feduc)
+```
+
+Atypical distribution, with spikes probably due to education milestones. Probably could transform to indicator or categorical variable.
+
+- bwght
+
+```{r bwght}
+hist(data$bwght, breaks = 50)
+summary(data$bwght)
+```
+
+Normal, negative skew. No transformation required, but log-transform could make practical sense.
+
+- omaps
+
+```{r omaps}
+hist(data$omaps)
+summary(data$omaps)
+```
+
+One to ten scale, not continuous, does not make much sense.
+
+-fmaps
+
+```{r fmaps}
+hist(data$fmaps)
+summary(data$fmaps)
+```
+
+One to ten scale, not continuous, does not make much sense.
+
+- cigs
+
+```{r cigs}
+hist(data$cigs, breaks = 40)
+hist(data$cigs[data$cigs > 0], breaks = 40)
+summary(data$cigs)
+```
+
+Weird distribution, with a few spikes at marked points due to survey answer round-ups or round-downs. Lots and lots of zeroes. Perhaps change to indicator or categorial variable?
+
+- drink
+
+```{r drink}
+hist(data$drink)
+hist(data$drink[data$drink > 0], breaks = 40)
+summary(data$drink)
+```
+
+Lots and lots of zeroes, just like cigs. Perhaps transform to indicator or categorical variable.
+
+- male
+
+```{r male}
+hist(data$male)
+summary(data$male)
+```
+
+Approximately equal sample distribution.
+
+- male
+
+```{r mwhte}
+hist(data$mwhte)
+summary(data$mwhte)
+```
+
+Uneven, mostly white mothers.
+
+Verify correlation of every variable:
+
+```{r scatterplotmatrix}
+scatterplotMatrix(~ bwght + mage + meduc + monpre + npvis + fage + feduc + cigs + drink, data=data)
+scatterplotMatrix(~ bwght + omaps + fmaps + male + mwhte + mblck + moth + fwhte + fblck + foth, data=data)
+```
