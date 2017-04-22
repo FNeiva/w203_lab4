@@ -3,6 +3,11 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+## Introduction
+
+For much of human existence, child berth has been an extraordinarily risky endeavor, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the rate of child berth related deaths and of child deaths. While this is something to applaud, there is still much work to be done. Child development after berth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effeccdts on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, We seek to determine whether prenatal care has an effect on the health of a newborn.
+
+
 ```{r setup}
 library(car)
 ```
@@ -14,6 +19,18 @@ library(car)
 load("bwght_w203.RData")
 desc
 ```
+
+
+**Data Quality Assessment**
+```{r}
+# First we want to determine whether there are missing data. If there are, we will then want to determine whether
+# there is a pattern to those missing data.
+
+apply(data, 2, function(x) mean(is.na(x)))
+```
+
+The apply function shows that for many of the variables we are not missing any data, while there are several variables on which we are missing some data. The fact that the average number of drinks per night or cigarrettes per week variable has the most missing data could indicate that many mothers who did consume alcohol during their pregnacy refused to answer. This could potentially lead to nonresponse bias.  The omaps and fmaps variables have the exact same number of missing data. If this happens on the same observation, then we might have hospital bias. Some hospitals might not do these measurements. There is also a very high percentage of missing data from the same people on the smoking and drinking quesiton.
+
 
 **Exploratory Analysis of each variable:**
 
