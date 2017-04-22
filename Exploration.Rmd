@@ -153,9 +153,38 @@ summary(data$mwhte)
 
 Uneven, mostly white mothers.
 
-Verify correlation of every variable:
+Variable transformation:
 
-```{r scatterplotmatrix}
-scatterplotMatrix(~ bwght + mage + meduc + monpre + npvis + fage + feduc + cigs + drink, data=data)
-scatterplotMatrix(~ bwght + omaps + fmaps + male + mwhte + mblck + moth + fwhte + fblck + foth, data=data)
+```{r}
+data$npvismonth <- data$npvis/(10-data$monpre)
+data$nonsmoker <- ifelse(data$cigs == 0, 1, 0)
+data$smoker <- ifelse(data$cigs > 0, 1, 0)
+data$lightsmoker <- ifelse(data$cigs > 0 & data$cigs <= 10, 1, 0)
+data$occsmoker <- ifelse(data$cigs > 10 & data$cigs <= 20, 1, 0)
+data$heavysmoker <- ifelse(data$cigs > 20, 1, 0)
+data$drinker <- ifelse(data$drink >= 1, 1, 0)
+```
+
+
+Different model testing:
+
+```{r}
+# Best model
+model6 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth, data=data)
+model1 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
+model4 <- lm(lbwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
+model5 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth, data=data)
+
+
+# Trying to use a drinker indicator variable
+model2 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drinker + male + fage, data=data)
+
+# Using cigs instead of indicator variable
+model3 <- lm(bwght ~ npvis + monpre + cigs + male + fage, data=data)
+
+# With almost every variable
+model7 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + feduc, data=data)
+
+
+
 ```
