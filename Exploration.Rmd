@@ -159,3 +159,12 @@ Verify correlation of every variable:
 scatterplotMatrix(~ bwght + mage + meduc + monpre + npvis + fage + feduc + cigs + drink, data=data)
 scatterplotMatrix(~ bwght + omaps + fmaps + male + mwhte + mblck + moth + fwhte + fblck + foth, data=data)
 ```
+
+Bivariate Plots
+
+```{r}
+ggplot(data = data, aes(x = data$monpre, y = data$bwght)) + geom_point() + geom_smooth(method = "loess") # This strongly suggests that the month at which you start prenatal care has no impact on the birthweight of the baby.
+
+ggplot(data = data, aes(x = data$npvis, y = data$bwght)) + geom_point() + geom_smooth(method = "loess") # serious outliers towards the lower left of the plot, but these will be outweighed by the many other variables whose x values are the same. There are scarly any data beyond 20 npvis. There seems to be a small positive effect to having over 5 visits.
+```
+
