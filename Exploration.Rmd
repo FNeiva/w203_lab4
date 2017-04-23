@@ -219,4 +219,3 @@ as.data.frame(summary_out$outmat)
 
 plot(regsubsets_out, scale = "adjr2", main = "Adjusted R^2")
 ```
-
