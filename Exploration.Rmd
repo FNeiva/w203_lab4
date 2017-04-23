@@ -5,11 +5,12 @@ output: html_notebook
 
 ## Introduction
 
-For much of human existence, child birth has been an extraordinarily risky endeavor, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the rate of child berth related deaths and of child deaths. While this is something to applaud, there is still much work to be done. Child development after berth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effeccdts on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, We seek to determine whether prenatal care has an effect on the health of a newborn.
+For much of human existence, childbirth has been an extraordinarily risky event, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the infant mortality rate. While this is something to applaud, there is still much work to be done. Child development after birth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effects on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, we seek to determine whether prenatal care has an effect on the health of a newborn.
 
 
 ```{r setup}
 library(car)
+library(ggplot2)
 ```
 
 
@@ -34,7 +35,33 @@ The apply function shows that for many of the variables we are not missing any d
 
 **Exploratory Analysis of each variable:**
 
-We start by looking at the independent variables available to measure level of prenatal care administered to mothers, as well as any variables that might be useful for controlling for other factors.
+Our exploratory analysis begins with an assessment of three possible dependent variables. Measurement of an infant's health immediately after birth can come in various forms and the dataset we have includes three different measurements: birthweight, the one minute agpar score, and the five minute agpar score. After we determine our preferred dependent variable, we will delve into the various independent variables available to measure level of prenatal care administered to mothers. Of course, it is reasonable to expect that during 9 months of gestation other variables besides those related to prenatal care may have an impact on the health of the infant, so we examine these variables and consider whether we need to control for them in isolating the effect of prenatal care.
+
+We now look at the prospective dependent variables we might use to measure infant health. 
+
+Birth Weight
+
+```{r bwght}
+ggplot(data = data, aes(x = data$bwght)) + geom_histogram(bins = 50, fill="dodgerblue1", colour = "black") +
+  ggtitle('Distribution of Baby Birthweight') + xlab("Baby Birthweight (in grams)") +
+  ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+summary(data$bwght)
+```
+
+The birth weight variable is fairly normally distributied, even though it has a small negative skew. While it doesn't require any transformation, we could take log base 10 of birth weight, which when interpreted in a regression model will become a percent change in weight.  This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. 
+
+One- and Five- Minute APGAR Scores
+
+```{r omaps}
+omaps_summary <- summary(data$omaps)
+fmaps_summary <- summary(data$fmaps)
+combined_summary <- rbind(omaps_summary, fmaps_summary)
+combined_summary
+```
+
+The one- and five- minute APGAR scores are a quick and easy scale that doctors can use to judge how healthy an infant looks one minute and five minute after it is born. It is generally used as a measure of the short-term health of the baby, helping doctors decide whether a baby will need immediate medical assistance. It is calculated by the doctor judging a baby on a scale of 0 to 2 across five different metrics (activity, pulse, grimace, appearance, respiration).
+
+Therefore, this means that the APGAR scores are essentially an ordinal variable. The scores in the dataset are mostly larger than 8, which means that we don't have a lot of lower results to help us determine the effect of prenatal care in all cases. That is why we don't think the APGAR scores are a good measure for overall baby health, and we will not use them in our regression.
 
 Age Variables:
 
@@ -138,27 +165,7 @@ summary(data$mwhte)
 
 This study covers 1624 white, 109 black and 99 women of other races. The results for men is similar. While we don't expect race to have any effect on infant health, it is worth noting that the data is very skewed. 
 
-We now look at the prospective dependent variables we might use to measure infant health. 
 
-Birth Weight
-
-```{r bwght}
-hist(data$bwght, breaks = 50)
-summary(data$bwght)
-```
-
-The birth weight variable is fairly normally distributied, even thought it has a small negative skew. While it doesn't require any transformation, we can take the log10 of birth weight, since a percent change in weight is something that makes intuitive sense. This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. 
-
-One- and Five- Minute APGAR Scores
-
-```{r omaps}
-summary(data$omaps)
-summary(data$fmaps)
-```
-
-The one- and five- minute APGAR scores are a quick and easy scale that doctors can use to judge how healthy a newly-born infant looks one minute and five minute after it is born. It is generally used as a measure of the short-term health of the baby, helping doctors decide whether a baby will need immediate medical assistance. It is calculated by the doctor judging a baby on a scale of 0 to 2 on five different metrics (activity, pulse, grimace, appearance, respiration).
-
-Therefore, this means that the APGAR scores are essentially an ordinal variable. The scores in the dataset are mostly larger than 8, which means that we don't have a lot of lower results to help us determine the effect of prenatal care in all cases. That is why we don't think the APGAR scores are a good measure for overall baby health, and we will not use them in our regression.
 
 **Variable transformation**
 
@@ -212,6 +219,13 @@ coeftest(models2, vcov = vcovHC)
 ```
 
 **CLM Assumptions**
+
+Normality of Errors
+Zero mean conditional
+Random Sample
+Homoskedasticity
+
+
 
 **Regression Table**
 
