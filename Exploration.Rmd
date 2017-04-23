@@ -10,6 +10,9 @@ For much of human existence, child birth has been an extraordinarily risky endea
 
 ```{r setup}
 library(car)
+library(lmtest)
+library(sandwich)
+library(ggplot2)
 ```
 
 
@@ -131,7 +134,6 @@ nrow(data[data$moth == 1,])
 nrow(data[data$fwhte == 1,])
 nrow(data[data$fblck == 1,])
 nrow(data[data$foth == 1,])
-table()
 hist(data$mwhte)
 summary(data$mwhte)
 ```
@@ -185,6 +187,7 @@ data$ffureduc <- ifelse(data$feduc > 16, 1, 0)
 
 ```{r}
 # Best model
+model8 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + mheduc + mceduc, data=data)
 model6 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth, data=data)
 model1 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
 model4 <- lm(lbwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
