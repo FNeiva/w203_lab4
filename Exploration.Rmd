@@ -108,7 +108,9 @@ Age Variables:
 hist(data$mage, breaks = 20)
 summary(data$fage)
 hist(data$fage, breaks = 40)
-summary(data$fage)
+mage_summary <- summary(data$mage)
+fage_summary <- summary(data$fage)
+rbind(mage_summary,fage_summary)
 ```
 
 The father and mother age variables both have fairly normal distributions around the 30-year mark, with the father age variable having a slight positive skew. This should mean that this dataset is fairly representative from an age perspective. 
@@ -159,19 +161,19 @@ table(data$male)
 
 There are approximately the same amounts of male babies as female babies. This might be a useful control variable, in the case when one gender is heavier in general than the other. 
 ```{r}
-summary(data[data$male ==1,]$bwght)
-summary(data[data$male ==0,]$bwght)
+summary(data[data$male ==1,]$bwght) # Male
+summary(data[data$male ==0,]$bwght) # Female
 ```
 
 Race
 
 ```{r mwhte}
-nrow(data[data$mwhte == 1,])
-nrow(data[data$mblck == 1,])
-nrow(data[data$moth == 1,])
-nrow(data[data$fwhte == 1,])
-nrow(data[data$fblck == 1,])
-nrow(data[data$foth == 1,])
+nrow(data[data$mwhte == 1,]) # 1624
+nrow(data[data$mblck == 1,]) # 109
+nrow(data[data$moth == 1,]) # 99
+nrow(data[data$fwhte == 1,]) # 1630
+nrow(data[data$fblck == 1,]) # 107
+nrow(data[data$foth == 1,]) # 95
 table()
 hist(data$mwhte)
 summary(data$mwhte)
@@ -193,12 +195,12 @@ data$occsmoker <- ifelse(data$cigs > 10 & data$cigs <= 20, 1, 0)
 data$heavysmoker <- ifelse(data$cigs > 20, 1, 0)
 data$drinker <- ifelse(data$drink >= 1, 1, 0)
 
-data$mheduc <- ifelse(data$meduc <= 12, 1, 0)
-data$fheduc <- ifelse(data$feduc <= 12, 1, 0)
-data$mceduc <- ifelse(data$meduc > 12 & data$meduc <=16, 1, 0)
-data$fceduc <- ifelse(data$feduc > 12 & data$feduc <=16, 1, 0)
-data$mfureduc <- ifelse(data$meduc > 16, 1, 0)
-data$ffureduc <- ifelse(data$feduc > 16, 1, 0)
+data$mheduc <- ifelse(data$meduc < 12, 1, 0)
+data$fheduc <- ifelse(data$feduc < 12, 1, 0)
+data$mceduc <- ifelse(data$meduc >= 12 & data$meduc <16, 1, 0)
+data$fceduc <- ifelse(data$feduc >= 12 & data$feduc <16, 1, 0)
+data$mfureduc <- ifelse(data$meduc >= 16, 1, 0)
+data$ffureduc <- ifelse(data$feduc >= 16, 1, 0)
 ```
 
 
@@ -207,6 +209,16 @@ data$ffureduc <- ifelse(data$feduc > 16, 1, 0)
 ```{r}
 # Best model
 model6 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth, data=data)
+
+str(data)
+
+model6_adj <- lm(bwght ~ npvis + monpre + smoker + drink + male + mage + mheduc + mceduc, data=data)
+
+summary(model6_adj)
+
+model6_adj <- lm(bwght ~ npvis + monpre + smoker + drink + male + fage + fwhte + fblck + mwhte + mblck + mheduc + mceduc, data=data)
+
+
 model1 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
 model4 <- lm(lbwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
 model5 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth, data=data)
@@ -225,7 +237,9 @@ model7 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + dr
 
 # Stan model suggestions: should we use npvissq? It could be that number of visits has an effect that changes with the number of visits (parabolic relationship)
 models1 = lm(bwght ~ monpre + npvis, data = data)
+
 models2 = lm(bwght ~ monpre + npvis + npvissq, data = data)
+plot(models1)
 AIC(models1)
 AIC(models2)
 summary(models1)
@@ -237,6 +251,7 @@ AIC(model4) # -634.9094, cannot compare because dependent var transformed
 AIC(model5) # 25484.27
 AIC(model6) # 25484.23
 AIC(model7) # 25080.77
+desc
 ```
 
 **CLM Assumptions**
