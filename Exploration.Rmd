@@ -34,98 +34,73 @@ The apply function shows that for many of the variables we are not missing any d
 
 **Exploratory Analysis of each variable:**
 
-- mage
+We start by looking at the independent variables available to measure level of prenatal care administered to mothers, as well as any variables that might be useful for controlling for other factors.
+
+Age Variables:
 
 ```{r mage}
-hist(data$mage)
-summary(data$mage)
+hist(data$mage, breaks = 20)
+summary(data$fage)
+hist(data$fage, breaks = 40)
+summary(data$fage)
 ```
 
-Nothing out of ordinary. Normal distribution. No transformation required
+The father and mother age variables both have fairly normal distributions around the 30-year mark, with the father age variable having a slight positive skew. This should mean that this dataset is fairly representative from an age perspective. 
 
-- meduc
+Education variables
 
 ```{r meduc}
 hist(data$meduc)
 summary(data$meduc)
+hist(data$feduc)
+summary(data$feduc)
+cor(data[complete.cases(data$feduc) & complete.cases(data$meduc),]$feduc, data[complete.cases(data$feduc) & complete.cases(data$meduc),]$meduc)
+
 ```
 
-Atypical distribution, with spikes probably due to education milestones. Probably could transform to indicator or categorical variable.
+The mother and father education variables both show signs of graduation effect at the 12 (high school) and 16 (college) mark. Therefore, we can bucket this variable into high school, college, and further education (see Variable Transformation below).
 
-- monpre
+Additionally, there is about 60% correlation between the education of the mother and father of each baby in the dataset, which aligns with the general notion that people marry others of the same education level.
+
+
+Length of Prenatal Care
 
 ```{r monpre}
-hist(data$monpre)
+hist(data$monpre, breaks = 9)
 summary(data$monpre)
 ```
 
-What does zero mean? Should we take it out?
+The monpre variable signifies the month of pregnancy at which prenatal care started, and is one of the key variables we expect to help us predict infant health. Its range from zero to nine is sensible, although we don't have anything to show us children that were born prematurely or later than nine months. In fact, such cases might be important because babies born prematurely tend to have smaller weight and face serious health risks. Therefore, the lack of this information might influence our conclusions. 
 
-- npvis 
+The histogram of monpre shows that the data is heavily skewed to the right. There are large peaks at zero and one, meaning that most women start prenatal care early on in their pregnancy.
+
+Number of Prenatal Visits 
 
 ```{r npvis}
 hist(data$npvis, breaks = 40)
 summary(data$npvis)
 ```
 
-Somewhat normal. Peak at around 11 (monthly visits?)
+The number of prenatal visits is another key metric we expect will have an effect on infant health. It has a strong positive skew, and we can see a peak at 12 visits. This could be because mothers that took part in this study were be eligible to a certain number of prenatal visits (possibly 12) for free, leading to a lot of women making exactly that many visits. The question of who pays for these visits could have a confounding effect, because it is more likely for mothers to make more visits if they are free and they would probably make less visits if they aren't. 
 
-- fage
+Plotting the number of visits to the month at which prenatal care started (see below), we can see two possible outliers in the top right. These two mothers had around 30 visits, even though they started their prenatal care in the 8th month. It could be the case that both of these mothers were admitted into hospital for a long period for a specific health problem, but we should check if these two points have an influence on the regression line of our models.
 
-```{r fage}
-hist(data$fage, breaks = 40)
-summary(data$fage)
+```{r}
+plot(jitter(data$monpre), jitter(data$npvis)) 
 ```
 
-Nothing out of ordinary. Normal distribution, slight positive skew. No transformation required
-
-- meduc
-
-```{r feduc}
-hist(data$feduc)
-summary(data$feduc)
-```
-
-Atypical distribution, with spikes probably due to education milestones. Probably could transform to indicator or categorical variable.
-
-- bwght
-
-```{r bwght}
-hist(data$bwght, breaks = 50)
-summary(data$bwght)
-```
-
-Normal, negative skew. No transformation required, but log-transform could make practical sense.
-
-- omaps
-
-```{r omaps}
-hist(data$omaps)
-summary(data$omaps)
-```
-
-One to ten scale, not continuous, does not make much sense.
-
--fmaps
-
-```{r fmaps}
-hist(data$fmaps)
-summary(data$fmaps)
-```
-
-One to ten scale, not continuous, does not make much sense.
-
-- cigs
+Cigarettes
 
 ```{r cigs}
 hist(data$cigs, breaks = 40)
 hist(data$cigs[data$cigs > 0], breaks = 40)
+nrow(data[data$cigs > 0,])/nrow(data)
 summary(data$cigs)
 ```
 
-Weird distribution, with a few spikes at marked points due to survey answer round-ups or round-downs. Lots and lots of zeroes. Perhaps change to indicator or categorial variable?
+The cigarettes variable has a peak at zero and a strong positive skew. Only about 14% of the data is of actual smokers, so we could get some skewed results. The distribution is very dispersed, with peaks at the 10, 20, 30, and 40 mark. This shows that people tended to round to these values, perhaps because they didn't know the exact number. It could also be the case that people tend do round down such values. This could lead to loss of important detail in the data, but the variable could still be used as an indicator of whether people are heavy, light or non-smokers in general (see variable transformation below).
 
-- drink
+Drinking
 
 ```{r drink}
 hist(data$drink)
@@ -133,28 +108,116 @@ hist(data$drink[data$drink > 0], breaks = 40)
 summary(data$drink)
 ```
 
-Lots and lots of zeroes, just like cigs. Perhaps transform to indicator or categorical variable.
+In this dataset, there are only about 16 people that actually drank any alcohol during their pregnancy, and they make up only about 1% of the data. While it makes sense that respondents would stop drinking (or at least say they did) during their pregnancy, such a small amount of actual drinkers means this variable will not be helpful in explaining variances in infant health.
 
-- male
+Baby Gender
 
 ```{r male}
-hist(data$male)
-summary(data$male)
+table(data$male)
 ```
 
-Approximately equal sample distribution.
+There are approximately the same amounts of male babies as female babies. This might be a useful control variable, in the case when one gender is heavier in general than the other. 
+```{r}
+summary(data[data$male ==1,]$bwght)
+summary(data[data$male ==0,]$bwght)
+```
 
-- male
+Race
 
 ```{r mwhte}
+nrow(data[data$mwhte == 1,])
+nrow(data[data$mblck == 1,])
+nrow(data[data$moth == 1,])
+nrow(data[data$fwhte == 1,])
+nrow(data[data$fblck == 1,])
+nrow(data[data$foth == 1,])
+table()
 hist(data$mwhte)
 summary(data$mwhte)
 ```
 
-Uneven, mostly white mothers.
+This study covers 1624 white, 109 black and 99 women of other races. The results for men is similar. While we don't expect race to have any effect on infant health, it is worth noting that the data is very skewed. 
 
-Verify correlation of every variable:
+We now look at the prospective dependent variables we might use to measure infant health. 
 
+Birth Weight
+
+```{r bwght}
+hist(data$bwght, breaks = 50)
+summary(data$bwght)
+```
+
+The birth weight variable is fairly normally distributied, even thought it has a small negative skew. While it doesn't require any transformation, we can take the log10 of birth weight, since a percent change in weight is something that makes intuitive sense. This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. 
+
+One- and Five- Minute APGAR Scores
+
+```{r omaps}
+summary(data$omaps)
+summary(data$fmaps)
+```
+
+The one- and five- minute APGAR scores are a quick and easy scale that doctors can use to judge how healthy a newly-born infant looks one minute and five minute after it is born. It is generally used as a measure of the short-term health of the baby, helping doctors decide whether a baby will need immediate medical assistance. It is calculated by the doctor judging a baby on a scale of 0 to 2 on five different metrics (activity, pulse, grimace, appearance, respiration).
+
+Therefore, this means that the APGAR scores are essentially an ordinal variable. The scores in the dataset are mostly larger than 8, which means that we don't have a lot of lower results to help us determine the effect of prenatal care in all cases. That is why we don't think the APGAR scores are a good measure for overall baby health, and we will not use them in our regression.
+
+**Variable transformation**
+
+```{r}
+data$npvismonth <- data$npvis/(10-data$monpre)
+
+data$nonsmoker <- ifelse(data$cigs == 0, 1, 0)
+data$smoker <- ifelse(data$cigs > 0, 1, 0)
+data$lightsmoker <- ifelse(data$cigs > 0 & data$cigs <= 10, 1, 0)
+data$occsmoker <- ifelse(data$cigs > 10 & data$cigs <= 20, 1, 0)
+data$heavysmoker <- ifelse(data$cigs > 20, 1, 0)
+data$drinker <- ifelse(data$drink >= 1, 1, 0)
+
+data$mheduc <- ifelse(data$meduc <= 12, 1, 0)
+data$fheduc <- ifelse(data$feduc <= 12, 1, 0)
+data$mceduc <- ifelse(data$meduc > 12 & data$meduc <=16, 1, 0)
+data$fceduc <- ifelse(data$feduc > 12 & data$feduc <=16, 1, 0)
+data$mfureduc <- ifelse(data$meduc > 16, 1, 0)
+data$ffureduc <- ifelse(data$feduc > 16, 1, 0)
+```
+
+
+**Different model testing**
+
+```{r}
+# Best model
+model6 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth, data=data)
+model1 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
+model4 <- lm(lbwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
+model5 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth, data=data)
+
+
+# Trying to use a drinker indicator variable
+model2 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drinker + male + fage, data=data)
+
+# Using cigs instead of indicator variable
+model3 <- lm(bwght ~ npvis + monpre + cigs + male + fage, data=data)
+
+# With almost every variable
+model7 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + feduc, data=data)
+
+# Stan model suggestions: should we use npvissq? It could be that number of visits has an effect that changes with the number of visits (parabolic relationship)
+models1 = lm(bwght ~ monpre + npvis, data = data)
+models2 = lm(bwght ~ monpre + npvis + npvissq, data = data)
+AIC(models1)
+AIC(models2)
+summary(models1)
+summary(models2)
+coeftest(models1, vcov = vcovHC)
+coeftest(models2, vcov = vcovHC)
+```
+
+**CLM Assumptions**
+
+**Regression Table**
+
+**Causality discussion**
+
+<<<<<<< HEAD
 ```{r scatterplotmatrix}
 scatterplotMatrix(~ bwght + mage + meduc + monpre + npvis + fage + feduc + cigs + drink, data=data)
 scatterplotMatrix(~ bwght + omaps + fmaps + male + mwhte + mblck + moth + fwhte + fblck + foth, data=data)
@@ -219,3 +282,6 @@ as.data.frame(summary_out$outmat)
 
 plot(regsubsets_out, scale = "adjr2", main = "Adjusted R^2")
 ```
+=======
+**Conclusion**
+>>>>>>> 22095f252bf00e33d2b896c4ef9ca6615deb1119
