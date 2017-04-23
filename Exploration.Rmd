@@ -37,9 +37,6 @@ The apply function shows that for many of the variables we are not missing any d
 
 **Exploratory Analysis of each variable:**
 
-<<<<<<< HEAD
-We start by looking at the independent variables available to measure level of prenatal care administered to mothers, as well as any variables that might be useful for controlling for other factors.
-=======
 Our exploratory analysis begins with an assessment of three possible dependent variables. Measurement of an infant's health immediately after birth can come in various forms and the dataset we have includes three different measurements: birthweight, the one minute agpar score, and the five minute agpar score. After we determine our preferred dependent variable, we will delve into the various independent variables available to measure level of prenatal care administered to mothers. Of course, it is reasonable to expect that during 9 months of gestation other variables besides those related to prenatal care may have an impact on the health of the infant, so we examine these variables and consider whether we need to control for them in isolating the effect of prenatal care.
 
 We now look at the prospective dependent variables we might use to measure infant health. 
@@ -97,7 +94,6 @@ Plotting the number of visits to the month at which prenatal care started (see b
 plot(jitter(data$monpre), jitter(data$npvis)) 
 ```
 
->>>>>>> a812c632efd16f540229223aad105edb102aba92
 
 Age Variables:
 
@@ -179,7 +175,7 @@ We now look at the prospective dependent variables we might use to measure infan
 
 Birth Weight
 
-```{r bwght}
+```{r bwght2}
 hist(data$bwght, breaks = 50)
 summary(data$bwght)
 ```
@@ -188,7 +184,7 @@ The birth weight variable is fairly normally distributied, even thought it has a
 
 One- and Five- Minute APGAR Scores
 
-```{r omaps}
+```{r omaps2}
 summary(data$omaps)
 summary(data$fmaps)
 ```
@@ -312,6 +308,6 @@ as.data.frame(summary_out$outmat)
 
 plot(regsubsets_out, scale = "adjr2", main = "Adjusted R^2")
 ```
-=======
+
+
 **Conclusion**
->>>>>>> 22095f252bf00e33d2b896c4ef9ca6615deb1119
