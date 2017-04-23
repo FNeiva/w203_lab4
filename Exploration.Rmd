@@ -11,6 +11,9 @@ For much of human existence, childbirth has been an extraordinarily risky event,
 ```{r setup}
 library(car)
 library(ggplot2)
+library(stargazer)
+library(sandwich)
+library(lmtest)
 ```
 
 
@@ -208,6 +211,8 @@ model1 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + dr
 model4 <- lm(lbwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
 model5 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth, data=data)
 
+stargazer(model6, model1, type = 'latex')
+summary(model6)
 
 # Trying to use a drinker indicator variable
 model2 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drinker + male + fage, data=data)
@@ -227,6 +232,11 @@ summary(models1)
 summary(models2)
 coeftest(models1, vcov = vcovHC)
 coeftest(models2, vcov = vcovHC)
+AIC(model3) # 25615.21
+AIC(model4) # -634.9094, cannot compare because dependent var transformed
+AIC(model5) # 25484.27
+AIC(model6) # 25484.23
+AIC(model7) # 25080.77
 ```
 
 **CLM Assumptions**
