@@ -217,12 +217,6 @@ coeftest(models2, vcov = vcovHC)
 
 **Causality discussion**
 
-<<<<<<< HEAD
-```{r scatterplotmatrix}
-scatterplotMatrix(~ bwght + mage + meduc + monpre + npvis + fage + feduc + cigs + drink, data=data)
-scatterplotMatrix(~ bwght + omaps + fmaps + male + mwhte + mblck + moth + fwhte + fblck + foth, data=data)
-```
-
 Bivariate Plots
 
 ```{r}
