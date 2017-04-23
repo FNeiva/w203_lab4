@@ -30,7 +30,7 @@ desc
 apply(data, 2, function(x) mean(is.na(x)))
 ```
 
-The apply function shows that for many of the variables we are not missing any data, while there are several variables on which we are missing some data. The fact that the average number of drinks per night or cigarrettes per week variable has the most missing data could indicate that many mothers who did consume alcohol during their pregnacy refused to answer. This could potentially lead to nonresponse bias.  The omaps and fmaps variables have the exact same number of missing data. If this happens on the same observation, then we might have hospital bias. Some hospitals might not do these measurements. There is also a very high percentage of missing data from the same people on the smoking and drinking quesiton.
+The quick analysis shows that for many of the variables we are not missing any data, while there are several variables on which we are missing some data. The fact that the average number of drinks per night or cigarrettes per week variable has the most missing data could indicate that many mothers who did consume alcohol during their pregnacy refused to answer. This could potentially lead to nonresponse bias.  The omaps and fmaps variables have the exact same number of missing data. If this happens on the same observation, then we might have hospital bias. Some hospitals might not do these measurements. There is also a very high percentage of missing data from the same people on the smoking and drinking quesiton.
 
 
 **Exploratory Analysis of each variable:**
@@ -43,12 +43,13 @@ Birth Weight
 
 ```{r bwght}
 ggplot(data = data, aes(x = data$bwght)) + geom_histogram(bins = 50, fill="dodgerblue1", colour = "black") +
-  ggtitle('Distribution of Baby Birthweight') + xlab("Baby Birthweight (in grams)") +
+  ggtitle('Birthweight of Infants') + xlab("Baby Birthweight (in grams)") +
   ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
 summary(data$bwght)
+
 ```
 
-The birth weight variable is fairly normally distributied, even though it has a small negative skew. While it doesn't require any transformation, we could take log base 10 of birth weight, which when interpreted in a regression model will become a percent change in weight.  This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. Moreover, there is no subjectivity to this measure: an infant is weighed and that measurement is recorded. Whereas in the agpar score - which we discuss below - the doctor makes diagnostic assessments that are subject to human error. If the data were collected from certain hospitals, then the agpar scores could be correlated with each other by including multiple assessments from the same doctor (other correlations would also creep in).
+The birth weight variable is fairly normally distributied, even though it has a small negative skew. While it doesn't require any transformation, we could take log base 10 of birth weight, which when interpreted in a regression model would become a percent change in weight. This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. Moreover, there is no subjectivity to this measure: an infant is weighed and that measurement is recorded. Whereas in the agpar score - which we discuss below - the doctor makes diagnostic assessments that are subject to human error. If the data were collected from certain hospitals, then the agpar scores could be correlated with each other by including multiple assessments from the same doctor (other correlations would also creep in).
 
 One- and Five- Minute APGAR Scores
 
@@ -69,8 +70,11 @@ Therefore, this means that the APGAR scores are essentially an ordinal variable,
 Length of Prenatal Care
 
 ```{r monpre}
-hist(data$monpre, breaks = 9)
+ggplot(data = data, aes(x = data$monpre)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5) +
+  ggtitle('Month Prenatal Care Started') + xlab("Month") +
+  ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) + scale_x_continuous(breaks = c(0:10))
 summary(data$monpre)
+
 ```
 
 The monpre variable signifies the month of pregnancy at which prenatal care started, and is one of the key variables we expect to help us predict infant health. Its range from zero to nine is sensible, although we don't have anything to show us children that were born prematurely or later than nine months. In fact, such cases might be important because babies born prematurely tend to have smaller weight and face serious health risks. Therefore, the lack of this information might influence our conclusions. 
@@ -80,7 +84,9 @@ The histogram of monpre shows that the data is heavily skewed to the right. Ther
 Number of Prenatal Visits 
 
 ```{r npvis}
-hist(data$npvis, breaks = 40)
+ggplot(data = data, aes(x = data$npvis)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5, bins = 30) +
+  ggtitle('Number of Prenatal Care Visits') + xlab("Prenatal Care Visits") +
+  ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
 summary(data$npvis)
 ```
 
