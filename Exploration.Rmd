@@ -1,14 +1,13 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Does Prenatal Care Improve Child Health?"
+subtitle: "W203 - Statistics For Data Science Lab 4"
+author: "Felipe Campos, Josh Wilson and Stanimir Vichev"
+date: "4/26/2017"
+output: pdf_document
 ---
 
-## Introduction
-
-For much of human existence, child birth has been an extraordinarily risky endeavor, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the rate of child berth related deaths and of child deaths. While this is something to applaud, there is still much work to be done. Child development after berth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effeccdts on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, We seek to determine whether prenatal care has an effect on the health of a newborn.
-
-
-```{r setup}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 library(car)
 library(lmtest)
 library(sandwich)
@@ -16,7 +15,12 @@ library(ggplot2)
 library(stargazer)
 library(sandwich)
 library(lmtest)
+library(leaps)
 ```
+
+## Introduction
+
+For much of human existence, child birth has been an extraordinarily risky endeavor, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the rate of child berth related deaths and of child deaths. While this is something to applaud, there is still much work to be done. Child development after berth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effeccdts on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, We seek to determine whether prenatal care has an effect on the health of a newborn.
 
 
 **Variable Descriptions:**
@@ -226,7 +230,9 @@ data$ffureduc <- ifelse(data$feduc > 16, 1, 0)
 **Different model testing**
 
 ```{r}
-# Best model
+# Best models
+model10 <- lm(bwght ~ npvis + monpre + smoker + drink + male + fage + fwhte + fblck + mwhte + mblck + mheduc + mceduc, data=data) # model 9 using smoker indicator instead of categorical
+model9 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + mwhte + mblck + mheduc + mceduc, data=data) # improved model 8
 model8 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + mheduc + mceduc, data=data)
 model6 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth, data=data)
 model1 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
@@ -314,8 +320,6 @@ plot(mod_cov_minus)
 
 #Model Selection Using Leaps
 ```{r}
-install.packages("leaps")
-library(leaps)
 str(data)
 regsubsets_out <- regsubsets(bwght ~ mage + meduc + monpre + npvis + fage + feduc + cigs + drink + male + mwhte + mblck + fwhte + fblck + npvissq, data = data, nbest = 1, nvmax = NULL, force.in = NULL, force.out = NULL, method = "exhaustive")
 regsubsets_out
