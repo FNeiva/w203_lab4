@@ -18,12 +18,14 @@ library(lmtest)
 library(leaps)
 ```
 
-## Introduction
+# Introduction
 
-For much of human existence, child birth has been an extraordinarily risky endeavor, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the rate of child berth related deaths and of child deaths. While this is something to applaud, there is still much work to be done. Child development after berth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effeccdts on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, We seek to determine whether prenatal care has an effect on the health of a newborn.
+For much of human existence, child birth has been an extraordinarily risky endeavor, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the rate of child berth related deaths and of child deaths. While this is something to applaud, there is still much work to be done. Child development after berth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effects on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, We seek to determine whether prenatal care has an effect on the health of a newborn.
 
 
-**Variable Descriptions:**
+# Data Assessment
+
+## Variable Descriptions
 
 ```{r load}
 load("bwght_w203.RData")
@@ -31,7 +33,7 @@ desc
 ```
 
 
-**Data Quality Assessment**
+## Data Quality Assessment
 ```{r}
 # First we want to determine whether there are missing data. If there are, we will then want to determine whether
 # there is a pattern to those missing data.
@@ -42,13 +44,13 @@ apply(data, 2, function(x) mean(is.na(x)))
 The quick analysis shows that for many of the variables we are not missing any data, while there are several variables on which we are missing some data. The fact that the average number of drinks per night or cigarrettes per week variable has the most missing data could indicate that many mothers who did consume alcohol during their pregnacy refused to answer. This could potentially lead to nonresponse bias.  The omaps and fmaps variables have the exact same number of missing data. If this happens on the same observation, then we might have hospital bias. Some hospitals might not do these measurements. There is also a very high percentage of missing data from the same people on the smoking and drinking quesiton.
 
 
-**Exploratory Analysis of each variable:**
+## Exploratory Analysis of each variable
 
-Our exploratory analysis begins with an assessment of three possible dependent variables. Measurement of an infant's health immediately after birth can come in various forms and the dataset we have includes three different measurements: birthweight, the one minute agpar score, and the five minute agpar score. After we determine our preferred dependent variable, we will delve into the various independent variables available to measure level of prenatal care administered to mothers. Of course, it is reasonable to expect that during 9 months of gestation other variables besides those related to prenatal care may have an impact on the health of the infant, so we examine these variables and consider whether we need to control for them in isolating the effect of prenatal care.
+Our exploratory analysis begins with an assessment of three possible dependent variables. Measurement of an infant's health immediately after birth can come in various forms and the dataset we have includes three different measurements: birthweight, the one-minute APGAR score, and the five-minute APGAR score. After we determine our preferred dependent variable, we will delve into the various independent variables available to measure level of prenatal care administered to mothers. Of course, it is reasonable to expect that during 9 months of gestation other variables besides those related to prenatal care may have an impact on the health of the infant, so we examine these variables and consider whether we need to control for them in isolating the effect of prenatal care.
 
 We now look at the prospective dependent variables we might use to measure infant health. 
 
-Birth Weight
+**Birth Weight**
 
 ```{r bwght}
 ggplot(data = data, aes(x = data$bwght)) + geom_histogram(bins = 50, fill="dodgerblue1", colour = "black") +
@@ -60,7 +62,7 @@ summary(data$bwght)
 
 The birth weight variable is fairly normally distributied, even though it has a small negative skew. While it doesn't require any transformation, we could take log base 10 of birth weight, which when interpreted in a regression model would become a percent change in weight. This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. Moreover, there is no subjectivity to this measure: an infant is weighed and that measurement is recorded. Whereas in the agpar score - which we discuss below - the doctor makes diagnostic assessments that are subject to human error. If the data were collected from certain hospitals, then the agpar scores could be correlated with each other by including multiple assessments from the same doctor (other correlations would also creep in).
 
-One- and Five- Minute APGAR Scores
+**One- and Five- Minute APGAR Scores**
 
 ```{r omaps}
 omaps_summary <- summary(data$omaps)
@@ -73,7 +75,7 @@ The one- and five- minute APGAR scores are a quick and easy scale that doctors c
 
 Therefore, this means that the APGAR scores are essentially an ordinal variable, since we cannot determine whether the difference between a 10 and 9 is the same as the distance between a 2 and a 1 but we do know that 10 is better than 9. As we can see from the summary table of both agpar scores, most of the scores are an 8 or above, which means that we don't have a lot of lower results to help us determine the effect of prenatal care in all cases. For these reasons and the reasons discussed above, we do not believe the APGAR scores are a good measure of infant health, and we therefore opt to use birthweight as our dependent variable in the models below.
 
-## EDA of Independent Variables
+## Exploratory Analysis of Independent Variables
 
 ### Key Variables Related to Prenatal Care
 Length of Prenatal Care
