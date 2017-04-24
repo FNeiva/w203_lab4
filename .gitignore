@@ -37,3 +37,4 @@ vignettes/*.pdf
 
 # RStudio Project Files
 *.Rproj
+.Rproj.user
