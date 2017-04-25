@@ -271,7 +271,11 @@ stargazer(model1, model2, model3, type = "latex", report = "vc", header = FALSE,
 ```
 
 # Causality discussion
-we don't have anything to show us children that were born prematurely or later than nine months.In fact, such cases might be important because babies born prematurely tend to have smaller weight and face serious health risks. Therefore, the lack of this information might influence our conclusions. 
+The first step in assessing whether a causal argument can be made begins with understanding the data generating process. Ideally, we would want a randomized controlled study; this would give us the power to isolate the effects of causes. We know from the information provided that this data come from National Center for Health Statistics, and a cursory search suggests that the CDC would implement a highly rigorous randomized design. However, there is no evidence to suggest some sort of control mechanism was in place. Since we are dealing with maternal behavior during pregnancy, it is unreasonable and possibly unethical to deny some mothers the ability to adopt behaviors that may be beneficial for their fetus. From this reasoning, it would appear that the data we have come from an observational study.
+
+The mere fact that the data come from an observational study does not destroy the ability to detect the effects of causes. However, we would need to know more about the data collection process. How many mothers dropped out of the study? Are there imbalances on some of the variables that we measured? For example, it might be that the proportion of highly educated women is higher than it is in the population. The lack of information on the data collection procedures casts grave doubt on whether we can interpret the results of our regression analysis causally.
+
+As a check on causality, we would wish to see data collected on many variables that we would intuitively believe to be important. For example, whether a mother carries the baby to term or delivers prematurely could have a large effect on baby health; whether there are complications during the pregnancy that affect the growth of the fetus may also play a role; and lastly, general health of the mother may also figure into the equation. When we do not have these variables they get put into the error term, which we are not able to control. This fact together with the lack of information on randomization is a death knell for any causal interpretation.
 
 Bivariate Plots
 
