@@ -31,6 +31,18 @@ desc
 # there is a pattern to those missing data.
 
 apply(data, 2, function(x) mean(is.na(x)))
+which(is.na(data["cigs"]) == T & is.na(data[,"drink"]) == T ) # 107 observations missing both drinking and cigs, we should see whether these people in a separate regression have different baby weights?
+
+
+
+# Search for missing data
+missing_data <- is.na(data)
+which(apply(missing_data,1,mean)>.2)
+data[c(which(apply(missing_data,1,mean)>.2)),] # same as below, points with most missing values
+which(missing_data[,"monpre"] == T & missing_data[,"npvis"] == T ) # These are teh points that have the most missing values
+which(data[,"monpre"] == 0 & data[,"npvis"] == 0 ) # 5 points with 0,0 on monpre and npvis 
+
+# There are four data points that are missing values for mpvis and monpre
 ```
 
 The quick analysis shows that for many of the variables we are not missing any data, while there are several variables on which we are missing some data. The fact that the average number of drinks per night or cigarrettes per week variable has the most missing data could indicate that many mothers who did consume alcohol during their pregnacy refused to answer. This could potentially lead to nonresponse bias.  The omaps and fmaps variables have the exact same number of missing data. If this happens on the same observation, then we might have hospital bias. Some hospitals might not do these measurements. There is also a very high percentage of missing data from the same people on the smoking and drinking quesiton.
@@ -118,6 +130,9 @@ The father and mother age variables both have fairly normal distributions around
 Education variables
 
 ```{r meduc}
+
+ggplot(data = data, aes(x = meduc)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5, bins = 30) + ggtitle("Education Level of Mothers") + xlab("Education (Years)") + ylab("Count") + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+
 hist(data$meduc)
 summary(data$meduc)
 hist(data$feduc)
@@ -135,6 +150,15 @@ Additionally, there is about 60% correlation between the education of the mother
 Cigarettes
 
 ```{r cigs}
+
+ggplot(data = data, aes(x = cigs)) + 
+  geom_histogram(fill="dodgerblue1", colour = "black", origin = -0.5) +
+  ggtitle("Daily Cigarette Consumption During Pregnancy") + 
+  ylab("Count") + 
+  xlab("Cigarettes Per Day") + theme(axis.text.x = element_text(face = "bold"), 
+                                     axis.text.y = element_text(face = "bold"), 
+                                     plot.title = element_text(size = 14, face = "bold",
+                                                               hjust = 0.5))
 hist(data$cigs, breaks = 40)
 hist(data$cigs[data$cigs > 0], breaks = 40)
 nrow(data[data$cigs > 0,])/nrow(data)
@@ -146,6 +170,7 @@ The cigarettes variable has a peak at zero and a strong positive skew. Only abou
 Drinking
 
 ```{r drink}
+# Marked for deletion
 hist(data$drink)
 hist(data$drink[data$drink > 0], breaks = 40)
 summary(data$drink)
@@ -212,7 +237,7 @@ model6 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + dr
 
 str(data)
 
-model6_adj <- lm(bwght ~ npvis + monpre + smoker + drink + male + mage + mheduc + mceduc, data=data)
+model6_adj <- lm(bwght ~ npvis + monpre + smoker  + male + mage + mheduc + mceduc, data=data)
 
 summary(model6_adj)
 
@@ -236,8 +261,8 @@ model3 <- lm(bwght ~ npvis + monpre + cigs + male + fage, data=data)
 model7 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + feduc, data=data)
 
 # Stan model suggestions: should we use npvissq? It could be that number of visits has an effect that changes with the number of visits (parabolic relationship)
-models1 = lm(bwght ~ monpre + npvis, data = data)
 
+# Model below marked for deletion
 models2 = lm(bwght ~ monpre + npvis + npvissq, data = data)
 plot(models1)
 AIC(models1)
@@ -254,14 +279,21 @@ AIC(model7) # 25080.77
 desc
 ```
 
+
+```{r model1}
+models1 = lm(bwght ~ monpre + npvis, data = data)
+plot(models1)
+```
+
+
 **CLM Assumptions**
 
 Linearity of Parameters
-Normality of Errors
-Zero mean conditional
 Random Sample
-Homoskedasticity
 No perfect collinearity
+Zero mean conditional: We see a negative trending line in our residuals that starts above zero and ends negative. Ideally, we would want a horizontal line at 0. The deviations from zero happen towards the fringes of the fitted values, suggesting that high leverage points may be affecting the fit of the model. Within the most dense portion of the data, we do see that the zero mean conditional is satisfied.
+Homoskedasticity
+Normality of Errors
 
 
 **Regression Table**
