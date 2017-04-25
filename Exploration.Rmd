@@ -227,12 +227,10 @@ model7 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + dr
 
 # Model below marked for deletion
 models2 = lm(bwght ~ monpre + npvis + npvissq, data = data)
-plot(models1)
-AIC(models1)
 AIC(models2)
-summary(models1)
+
 summary(models2)
-coeftest(models1, vcov = vcovHC)
+
 coeftest(models2, vcov = vcovHC)
 AIC(model3) # 25615.21
 AIC(model4) # -634.9094, cannot compare because dependent var transformed
@@ -245,6 +243,8 @@ desc
 
 ```{r model1}
 models1 = lm(bwght ~ monpre + npvis, data = data)
+summary(models1)
+coeftest(models1, vcov = vcovHC)
 plot(models1)
 ```
 
