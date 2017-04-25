@@ -241,11 +241,12 @@ desc
 ```
 
 
+# Correct model 1
 ```{r model1}
-models1 = lm(bwght ~ monpre + npvis, data = data)
-summary(models1)
-coeftest(models1, vcov = vcovHC)
-plot(models1)
+model1 = lm(bwght ~ monpre + npvis, data = data)
+summary(model1)
+coeftest(model1, vcov = vcovHC)
+plot(model1)
 ```
 
 
@@ -258,6 +259,22 @@ Zero mean conditional: We see a negative trending line in our residuals that sta
 Homoskedasticity
 Normality of Errors
 
+# Correct model 2
+```{r model2}
+model2 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc, data = data)
+summary(model2)
+coeftest(model2, vcov = vcovHC)
+plot(model2)
+```
+
+
+# Correct Model 3
+```{r model3}
+model3 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc + fheduc + fceduc + fage, data = data)
+summary(model3)
+coeftest(model3, vcov = vcovHC)
+plot(model3)
+```
 **Regression Table**
 
 ```{r regression table}
@@ -266,8 +283,9 @@ stargazer(model1, model2, model3, type = "latex", report = "vc", header = FALSE,
           keep.stat = c("rsq", "aic", "n"),
           omit.table.layout = "n",
           add.lines = list(c("AIC", 
-                             round(AIC(model),digits=3), 
-                             round(AIC(model_rev), digits=3))))
+                             round(AIC(model1),digits=3), 
+                             round(AIC(model2), digits=3), 
+                             round(AIC(model3), digits=3))))
 ```
 
 # Causality discussion
