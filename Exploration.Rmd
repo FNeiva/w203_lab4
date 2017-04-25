@@ -256,11 +256,12 @@ desc
 
 **CLM Assumptions**
 
+Linearity of Parameters
 Normality of Errors
 Zero mean conditional
 Random Sample
 Homoskedasticity
-
+No perfect collinearity
 
 
 **Regression Table**
