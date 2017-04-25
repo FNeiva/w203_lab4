@@ -85,12 +85,13 @@ combined_summary
 
 The one- and five- minute APGAR scores are a quick and easy scale that doctors can use to judge how healthy an infant looks one minute and five minute after it is born. It is generally used as a measure of the short-term health of the baby, helping doctors decide whether a baby will need immediate medical assistance. It is calculated by the doctor judging a baby on a scale of 0 to 2 across five different metrics (activity, pulse, grimace, appearance, respiration).
 
-Therefore, this means that the APGAR scores are essentially an ordinal variable, since we cannot determine whether the difference between a 10 and 9 is the same as the distance between a 2 and a 1 but we do know that 10 is better than 9. As we can see from the summary table of both agpar scores, most of the scores are an 8 or above, which means that we don't have a lot of lower results to help us determine the effect of prenatal care in all cases. For these reasons and the reasons discussed above, we do not believe the APGAR scores are a good measure of infant health, and we therefore opt to use birthweight as our dependent variable in the models below.
+Therefore, this means that the APGAR scores are essentially an ordinal variable, since we cannot determine whether the difference between a 10 and 9 is the same as the distance between a 2 and a 1 but we do know that 10 is better than 9. As we can see from the summary table of both APGAR scores, most of the scores are an 8 or above, which means that we don't have a lot of lower results to help us determine the effect of prenatal care in all cases. For these reasons and the reasons discussed above, we do not believe the APGAR scores are a good measure of infant health, and we therefore opt to use birthweight as our dependent variable in the models below.
 
 ## Exploratory Analysis of Independent Variables
 
 ### Key Variables Related to Prenatal Care
-Length of Prenatal Care
+
+**Length of Prenatal Care**
 
 ```{r monpre}
 ggplot(data = data, aes(x = data$monpre)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5) +
@@ -102,7 +103,7 @@ summary(data$monpre)
 
 The monpre variable signifies the month of pregnancy at which prenatal care started, and is one of the key variables we expect to help us predict infant health. It ranges from zero to nine, which means there is probably some rounding as prenatal care is unlikely to begin at conception. This would make sense as we are dealing with a discrete variable. The histogram of monpre shows that the data has a heavy positive skew. There are large peaks at one and two, meaning that most women start prenatal care towards the middle of or end of the first trimester. Unfortunately, we do not know what type of prenatal care this variable maps to. When is prenatal care considered to have begun and what counts? We assume that prenatal care has begun with the first visit to a doctor or midwife, although it may truly begin with a phone call.
 
-Number of Prenatal Visits 
+**Number of Prenatal Visits** 
 
 ```{r npvis}
 ggplot(data = data, aes(x = data$npvis)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5, bins = 30) +
@@ -122,7 +123,7 @@ ggplot(data = data, aes(x =data$monpre , y = data$npvis)) + geom_point() + geom_
 ```
 
 
-Age Variables:
+**Age Variables:**
 
 ```{r mage}
 hist(data$mage, breaks = 20)
@@ -135,7 +136,7 @@ rbind(mage_summary,fage_summary)
 
 The father and mother age variables both have fairly normal distributions around the 30-year mark, with the father age variable having a slight positive skew. This should mean that this dataset is fairly representative from an age perspective. 
 
-Education variables
+**Education variables**
 
 ```{r meduc}
 
@@ -153,9 +154,7 @@ The mother and father education variables both show signs of graduation effect a
 
 Additionally, there is about 60% correlation between the education of the mother and father of each baby in the dataset, which aligns with the general notion that people marry others of the same education level.
 
-
-
-Cigarettes
+**Cigarettes**
 
 ```{r cigs}
 
@@ -173,9 +172,9 @@ nrow(data[data$cigs > 0,])/nrow(data)
 summary(data$cigs)
 ```
 
-The cigarettes variable has a peak at zero and a strong positive skew. Only about 14% of the data is of actual smokers, so we could get some skewed results. The distribution is very dispersed, with peaks at the 10, 20, 30, and 40 mark. This shows that people tended to round to these values, perhaps because they didn't know the exact number. It could also be the case that people tend do round down such values. This could lead to loss of important detail in the data, but the variable could still be used as an indicator of whether people are heavy, light or non-smokers in general (see variable transformation below).
+The cigarettes variable has a peak at zero and a strong positive skew. Only about 14% of the data is of actual smokers, so we could get some skewed results. The distribution is very dispersed, with peaks at the 10, 20, 30, and 40 mark. This shows that people tended to round to these values, perhaps because they didn't know the exact number. It could also be the case that people tend to round down such values. This could lead to loss of important detail in the data, but the variable could still be used as an indicator of whether people are heavy, light or non-smokers in general (see variable transformation below).
 
-Drinking
+**Drinking**
 
 ```{r drink}
 # Marked for deletion
@@ -186,7 +185,7 @@ summary(data$drink)
 
 In this dataset, there are only about 16 people that actually drank any alcohol during their pregnancy, and they make up only about 1% of the data. While it makes sense that respondents would stop drinking (or at least say they did) during their pregnancy, such a small amount of actual drinkers means this variable will not be helpful in explaining variances in infant health.
 
-Baby Gender
+**Baby Gender**
 
 ```{r male}
 table(data$male)
@@ -198,7 +197,7 @@ summary(data[data$male ==1,]$bwght) # Male
 summary(data[data$male ==0,]$bwght) # Female
 ```
 
-Race
+**Race**
 
 ```{r mwhte}
 nrow(data[data$mwhte == 1,]) # 1624
@@ -207,7 +206,7 @@ nrow(data[data$moth == 1,]) # 99
 nrow(data[data$fwhte == 1,]) # 1630
 nrow(data[data$fblck == 1,]) # 107
 nrow(data[data$foth == 1,]) # 95
-table()
+#table()
 hist(data$mwhte)
 summary(data$mwhte)
 ```
@@ -216,27 +215,7 @@ This study covers 1624 white, 109 black and 99 women of other races. The results
 
 We now look at the prospective dependent variables we might use to measure infant health. 
 
-Birth Weight
-
-```{r bwght2}
-hist(data$bwght, breaks = 50)
-summary(data$bwght)
-```
-
-The birth weight variable is fairly normally distributied, even thought it has a small negative skew. While it doesn't require any transformation, we can take the log10 of birth weight, since a percent change in weight is something that makes intuitive sense. This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. 
-
-One- and Five- Minute APGAR Scores
-
-```{r omaps2}
-summary(data$omaps)
-summary(data$fmaps)
-```
-
-The one- and five- minute APGAR scores are a quick and easy scale that doctors can use to judge how healthy a newly-born infant looks one minute and five minute after it is born. It is generally used as a measure of the short-term health of the baby, helping doctors decide whether a baby will need immediate medical assistance. It is calculated by the doctor judging a baby on a scale of 0 to 2 on five different metrics (activity, pulse, grimace, appearance, respiration).
-
-Therefore, this means that the APGAR scores are essentially an ordinal variable. The scores in the dataset are mostly larger than 8, which means that we don't have a lot of lower results to help us determine the effect of prenatal care in all cases. That is why we don't think the APGAR scores are a good measure for overall baby health, and we will not use them in our regression.
-
-**Variable transformation**
+## Variable transformation
 
 ```{r}
 data$npvismonth <- data$npvis/(10-data$monpre)
@@ -257,7 +236,7 @@ data$ffureduc <- ifelse(data$feduc >= 16, 1, 0)
 ```
 
 
-**Different model testing**
+# Different model testing
 
 ```{r}
 # Best models
@@ -317,10 +296,8 @@ plot(models1)
 ```
 
 
-**CLM Assumptions**
+## CLM Assumptions
 
-<<<<<<< HEAD
-=======
 Linearity of Parameters
 Random Sample
 No perfect collinearity
@@ -328,11 +305,19 @@ Zero mean conditional: We see a negative trending line in our residuals that sta
 Homoskedasticity
 Normality of Errors
 
-
->>>>>>> 8876a75956d3035fda473177fa853660eff84318
 **Regression Table**
 
-**Causality discussion**
+```{r regression table}
+stargazer(model1, model2, model3, type = "latex", report = "vc", header = FALSE,
+          title = "Prenatal Care Influence In Birthweight",
+          keep.stat = c("rsq", "aic", "n"),
+          omit.table.layout = "n",
+          add.lines = list(c("AIC", 
+                             round(AIC(model),digits=3), 
+                             round(AIC(model_rev), digits=3))))
+```
+
+# Causality discussion
 we don't have anything to show us children that were born prematurely or later than nine months.In fact, such cases might be important because babies born prematurely tend to have smaller weight and face serious health risks. Therefore, the lack of this information might influence our conclusions. 
 
 Bivariate Plots
@@ -392,4 +377,4 @@ plot(regsubsets_out, scale = "adjr2", main = "Adjusted R^2")
 ```
 
 
-**Conclusion**
+# Conclusion
