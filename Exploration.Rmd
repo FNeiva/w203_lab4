@@ -39,6 +39,18 @@ desc
 # there is a pattern to those missing data.
 
 apply(data, 2, function(x) mean(is.na(x)))
+which(is.na(data["cigs"]) == T & is.na(data[,"drink"]) == T ) # 107 observations missing both drinking and cigs, we should see whether these people in a separate regression have different baby weights?
+
+
+
+# Search for missing data
+missing_data <- is.na(data)
+which(apply(missing_data,1,mean)>.2)
+data[c(which(apply(missing_data,1,mean)>.2)),] # same as below, points with most missing values
+which(missing_data[,"monpre"] == T & missing_data[,"npvis"] == T ) # These are teh points that have the most missing values
+which(data[,"monpre"] == 0 & data[,"npvis"] == 0 ) # 5 points with 0,0 on monpre and npvis 
+
+# There are four data points that are missing values for mpvis and monpre
 ```
 
 The quick analysis shows that for many of the variables we are not missing any data, while there are several variables on which we are missing some data. The fact that the average number of drinks per night or cigarrettes per week variable has the most missing data could indicate that many mothers who did consume alcohol during their pregnacy refused to answer. This could potentially lead to nonresponse bias.  The omaps and fmaps variables have the exact same number of missing data. If this happens on the same observation, then we might have hospital bias. Some hospitals might not do these measurements. There is also a very high percentage of missing data from the same people on the smoking and drinking quesiton.
@@ -116,7 +128,9 @@ Age Variables:
 hist(data$mage, breaks = 20)
 summary(data$fage)
 hist(data$fage, breaks = 40)
-summary(data$fage)
+mage_summary <- summary(data$mage)
+fage_summary <- summary(data$fage)
+rbind(mage_summary,fage_summary)
 ```
 
 The father and mother age variables both have fairly normal distributions around the 30-year mark, with the father age variable having a slight positive skew. This should mean that this dataset is fairly representative from an age perspective. 
@@ -124,6 +138,9 @@ The father and mother age variables both have fairly normal distributions around
 Education variables
 
 ```{r meduc}
+
+ggplot(data = data, aes(x = meduc)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5, bins = 30) + ggtitle("Education Level of Mothers") + xlab("Education (Years)") + ylab("Count") + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+
 hist(data$meduc)
 summary(data$meduc)
 hist(data$feduc)
@@ -141,6 +158,15 @@ Additionally, there is about 60% correlation between the education of the mother
 Cigarettes
 
 ```{r cigs}
+
+ggplot(data = data, aes(x = cigs)) + 
+  geom_histogram(fill="dodgerblue1", colour = "black", origin = -0.5) +
+  ggtitle("Daily Cigarette Consumption During Pregnancy") + 
+  ylab("Count") + 
+  xlab("Cigarettes Per Day") + theme(axis.text.x = element_text(face = "bold"), 
+                                     axis.text.y = element_text(face = "bold"), 
+                                     plot.title = element_text(size = 14, face = "bold",
+                                                               hjust = 0.5))
 hist(data$cigs, breaks = 40)
 hist(data$cigs[data$cigs > 0], breaks = 40)
 nrow(data[data$cigs > 0,])/nrow(data)
@@ -152,6 +178,7 @@ The cigarettes variable has a peak at zero and a strong positive skew. Only abou
 Drinking
 
 ```{r drink}
+# Marked for deletion
 hist(data$drink)
 hist(data$drink[data$drink > 0], breaks = 40)
 summary(data$drink)
@@ -167,19 +194,20 @@ table(data$male)
 
 There are approximately the same amounts of male babies as female babies. This might be a useful control variable, in the case when one gender is heavier in general than the other. 
 ```{r}
-summary(data[data$male ==1,]$bwght)
-summary(data[data$male ==0,]$bwght)
+summary(data[data$male ==1,]$bwght) # Male
+summary(data[data$male ==0,]$bwght) # Female
 ```
 
 Race
 
 ```{r mwhte}
-nrow(data[data$mwhte == 1,])
-nrow(data[data$mblck == 1,])
-nrow(data[data$moth == 1,])
-nrow(data[data$fwhte == 1,])
-nrow(data[data$fblck == 1,])
-nrow(data[data$foth == 1,])
+nrow(data[data$mwhte == 1,]) # 1624
+nrow(data[data$mblck == 1,]) # 109
+nrow(data[data$moth == 1,]) # 99
+nrow(data[data$fwhte == 1,]) # 1630
+nrow(data[data$fblck == 1,]) # 107
+nrow(data[data$foth == 1,]) # 95
+table()
 hist(data$mwhte)
 summary(data$mwhte)
 ```
@@ -220,12 +248,12 @@ data$occsmoker <- ifelse(data$cigs > 10 & data$cigs <= 20, 1, 0)
 data$heavysmoker <- ifelse(data$cigs > 20, 1, 0)
 data$drinker <- ifelse(data$drink >= 1, 1, 0)
 
-data$mheduc <- ifelse(data$meduc <= 12, 1, 0)
-data$fheduc <- ifelse(data$feduc <= 12, 1, 0)
-data$mceduc <- ifelse(data$meduc > 12 & data$meduc <=16, 1, 0)
-data$fceduc <- ifelse(data$feduc > 12 & data$feduc <=16, 1, 0)
-data$mfureduc <- ifelse(data$meduc > 16, 1, 0)
-data$ffureduc <- ifelse(data$feduc > 16, 1, 0)
+data$mheduc <- ifelse(data$meduc < 12, 1, 0)
+data$fheduc <- ifelse(data$feduc < 12, 1, 0)
+data$mceduc <- ifelse(data$meduc >= 12 & data$meduc <16, 1, 0)
+data$fceduc <- ifelse(data$feduc >= 12 & data$feduc <16, 1, 0)
+data$mfureduc <- ifelse(data$meduc >= 16, 1, 0)
+data$ffureduc <- ifelse(data$feduc >= 16, 1, 0)
 ```
 
 
@@ -237,6 +265,16 @@ model10 <- lm(bwght ~ npvis + monpre + smoker + drink + male + fage + fwhte + fb
 model9 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + mwhte + mblck + mheduc + mceduc, data=data) # improved model 8
 model8 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + mheduc + mceduc, data=data)
 model6 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth, data=data)
+
+str(data)
+
+model6_adj <- lm(bwght ~ npvis + monpre + smoker  + male + mage + mheduc + mceduc, data=data)
+
+summary(model6_adj)
+
+model6_adj <- lm(bwght ~ npvis + monpre + smoker + drink + male + fage + fwhte + fblck + mwhte + mblck + mheduc + mceduc, data=data)
+
+
 model1 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
 model4 <- lm(lbwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
 model5 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth, data=data)
@@ -254,8 +292,10 @@ model3 <- lm(bwght ~ npvis + monpre + cigs + male + fage, data=data)
 model7 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + feduc, data=data)
 
 # Stan model suggestions: should we use npvissq? It could be that number of visits has an effect that changes with the number of visits (parabolic relationship)
-models1 = lm(bwght ~ monpre + npvis, data = data)
+
+# Model below marked for deletion
 models2 = lm(bwght ~ monpre + npvis + npvissq, data = data)
+plot(models1)
 AIC(models1)
 AIC(models2)
 summary(models1)
@@ -267,10 +307,29 @@ AIC(model4) # -634.9094, cannot compare because dependent var transformed
 AIC(model5) # 25484.27
 AIC(model6) # 25484.23
 AIC(model7) # 25080.77
+desc
 ```
+
+
+```{r model1}
+models1 = lm(bwght ~ monpre + npvis, data = data)
+plot(models1)
+```
+
 
 **CLM Assumptions**
 
+<<<<<<< HEAD
+=======
+Linearity of Parameters
+Random Sample
+No perfect collinearity
+Zero mean conditional: We see a negative trending line in our residuals that starts above zero and ends negative. Ideally, we would want a horizontal line at 0. The deviations from zero happen towards the fringes of the fitted values, suggesting that high leverage points may be affecting the fit of the model. Within the most dense portion of the data, we do see that the zero mean conditional is satisfied.
+Homoskedasticity
+Normality of Errors
+
+
+>>>>>>> 8876a75956d3035fda473177fa853660eff84318
 **Regression Table**
 
 **Causality discussion**
