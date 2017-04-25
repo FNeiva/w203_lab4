@@ -123,7 +123,7 @@ ggplot(data = data, aes(x =data$monpre , y = data$npvis)) + geom_point() + geom_
 ```
 
 
-**Age Variables:**
+**Age Variables**
 
 ```{r mage}
 hist(data$mage, breaks = 20)
@@ -213,7 +213,6 @@ summary(data$mwhte)
 
 This study covers 1624 white, 109 black and 99 women of other races. The results for men is similar. While we don't expect race to have any effect on infant health, it is worth noting that the data is very skewed. 
 
-We now look at the prospective dependent variables we might use to measure infant health. 
 
 ## Variable transformation
 
