@@ -326,7 +326,7 @@ An interpretation of this model could be that, everything else held constant, fo
 
 ## Second Model
 
-For the second model, we add some variables that should help us control for some other factors, such as the mother's age, smoking habits, her educational background, and the baby's gender.  Controlling for the baby's gender is important because there might be physiological factors different for baby boys and baby girls.  Controlling for the mother's smoking  and age allows us to capture the effect this might have on the health of the baby. Finally, controlling for the mother's education could also be important, because more educated people might make more healthy choices during pregnancy and might be more aware of what to avoid for the baby's health. 
+For the second model, we add variables that should help us control for some other factors, such as the mother's age, smoking habits, her educational background, and the baby's gender.  Controlling for the baby's gender is important because there might be physiological factors different for baby boys and baby girls.  Controlling for the mother's smoking  and age allows us to capture the effect this might have on the health of the baby. Finally, controlling for the mother's education could also be important, because more educated people might make more healthy choices during pregnancy and might be more aware of what to avoid for the baby's health. 
 
 ```{r model2}
 model2 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc, data = data)
@@ -398,9 +398,14 @@ stargazer(model1, model2, model3, type = "latex", report = "vcstp*", header = FA
                              round(AIC(model1),digits=3), 
                              round(AIC(model2), digits=3), 
                              round(AIC(model3), digits=3))))
+
 ```
 
 TO DO: here we can compare practical/statistical significance, std errors and AIC values of the three models.
+
+Model 1 only includes the month prenatal care began and the number of visits. We have applied White robust errors because of the potential heteroskedasticity we detected in the diagnostic plot. this model is relatively simple but this belies what is acftually going on. The effect size for both months prior and the number of visits are the same, it is only the standard error which is drastically different between the two that causes the differences in statistical interpretation. The straightforward interpretation would say the only thing that matters is the number of visits and not when you start the visits. That is, two women who start at different months but have the same number of visits will, on average, produce babies whose health is roughly the same. The effect size for npvis suggests that a mother who does 12 visits should have a baby whose birthweight is approximately 180 grams more than a mother who does 2 visits.
+
+When we add in our control variables, we clearly witness 
 
 # Causality discussion
 
