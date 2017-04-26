@@ -7,7 +7,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(car)
 library(lmtest)
 library(sandwich)
@@ -30,15 +30,19 @@ load("bwght_w203.RData")
 ```
 
 ## Data Quality Assessment
+
 ```{r}
 apply(data, 2, function(x) mean(is.na(x)))
 ```
 
 The data quality assessment shows that only a few variables have larger percentages of missing data (~6%). The fact that the average number of drinks per night or cigarrettes per week variables have the most missing data could indicate that many mothers who did consume alcohol or cigarettes during their pregnacy refused to answer, which could lead to nonresponse bias. 
+
 ```{r} 
 length(which(is.na(data["cigs"]) == T & is.na(data[,"drink"]) == T ))
 ```
-Also, there are a lot of people (107) that didn't answer botht the smoking and drinking quesiton. 
+
+Also, there are a lot of people (107) that didn't answer both the smoking and drinking questions. 
+
 ```{r}
 missing_data <- is.na(data)
 which(apply(missing_data,1,mean)>.2)
@@ -48,6 +52,7 @@ The above check shows the few data points, which have the highest percentage of 
 The omaps and fmaps variables have the exact same number of missing data. If this happens on the same observation, then we might have hospital bias, as some hospitals might not do these measurements. 
 
 Finally, we notice that there are several data points in which mothers began prenatal care at the zeroeth month and yet also made 0 visits. We cannot be sure whether this is an accurate data point representing mothers who sought no prenatal care or whether this is an error and these points need to be excluded. To be safe, we will exclude them.
+
 ```{r}
 data_orig <- data
 errors = which(data[,"monpre"] == 0 & data[,"npvis"] == 0 )
@@ -68,7 +73,7 @@ ggplot(data = data, aes(x = data$bwght)) + geom_histogram(bins = 50, fill="dodge
   ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
 ```
 
-The birth weight variable is fairly normally distributied, even though it has a small negative skew. While it doesn't require any transformation, we could take log base 10 of birth weight, which when interpreted in a regression model would become a percent change in weight. This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. Moreover, there is no subjectivity to this measure: an infant is weighed and that measurement is recorded. Whereas in the agpar score - which we discuss below - the doctor makes diagnostic assessments that are subject to human error. If the data were collected from certain hospitals, then the agpar scores could be correlated with each other by including multiple assessments from the same doctor (other correlations would also creep in).
+The birth weight variable is fairly normally distributed, even though it has a small negative skew. While it doesn't require any transformation, we could take log base 10 of birth weight, which when interpreted in a regression model would become a percent change in weight. This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. Moreover, there is no subjectivity to this measure: an infant is weighed and that measurement is recorded, whereas in the APGAR score - which we discuss below - the doctor makes diagnostic assessments that are subject to human error. If the data were collected from certain hospitals, then the APGAR scores could be correlated with each other by including multiple assessments from the same doctor (other correlations would also creep in).
 
 **One- and Five- Minute APGAR Scores**
 
@@ -76,21 +81,20 @@ The birth weight variable is fairly normally distributied, even though it has a 
 omaps_summary <- summary(data$omaps)
 fmaps_summary <- summary(data$fmaps)
 combined_summary <- rbind(omaps_summary, fmaps_summary)
-combined_summary
+rownames(combined_summary) <- c("1-Min APGAR Scores", "5-Min APGAR Scores")
+knitr::kable(combined_summary, caption = "APGAR Scores Statistics")
 ```
 
-The one- and five- minute APGAR scores are a quick and easy scale that doctors can use to judge how healthy an infant looks one minute and five minute after it is born. It is generally used as a measure of the short-term health of the baby, helping doctors decide whether a baby will need immediate medical assistance. It is calculated by the doctor judging a baby on a scale of 0 to 2 across five different metrics (activity, pulse, grimace, appearance, respiration).
+The one- and five- minute APGAR scores are a quick and easy scale that doctors can use to judge how healthy an infant looks one minute and five minutes after it is born. It is generally used as a measure of the short-term health of the baby, helping doctors decide whether a baby will need immediate medical assistance. It is calculated by the doctor judging a baby on a scale of 0 to 2 across five different metrics (activity, pulse, grimace, appearance, respiration).
 
 Therefore, this means that the APGAR scores are essentially an ordinal variable, since we cannot determine whether the difference between a 10 and 9 is the same as the distance between a 2 and a 1 but we do know that 10 is better than 9. As we can see from the summary table of both APGAR scores, most of the scores are an 8 or above, which means that we don't have a lot of lower results to help us determine the effect of prenatal care in all cases. For these reasons and the reasons discussed above, we do not believe the APGAR scores are a good measure of infant health, and we therefore opt to use birthweight as our dependent variable in the models below.
 
 ## Exploratory Analysis of Independent Variables
 
-### Key Variables Related to Prenatal Care
-
 **Length of Prenatal Care**
 
 ```{r monpre}
-ggplot(data = data, aes(x = data$monpre)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5) +
+ggplot(data = data, aes(x = data$monpre)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5) +
   ggtitle('Month Prenatal Care Started') + xlab("Month") +
   ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) + scale_x_continuous(breaks = c(0:10))
 ```
@@ -100,7 +104,7 @@ The monpre variable signifies the month of pregnancy at which prenatal care star
 **Number of Prenatal Visits** 
 
 ```{r npvis}
-ggplot(data = data, aes(x = data$npvis)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5, bins = 30) +
+ggplot(data = data, aes(x = data$npvis)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5, bins = 30) +
   ggtitle('Number of Prenatal Care Visits') + xlab("Prenatal Care Visits") +
   ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
 ```
@@ -118,7 +122,9 @@ ggplot(data = data, aes(x =data$monpre , y = data$npvis)) + geom_point() + geom_
 ```{r mage}
 mage_summary <- summary(data$mage)
 fage_summary <- summary(data$fage)
-rbind(mage_summary,fage_summary)
+agesummary <- rbind(mage_summary,fage_summary)
+rownames(agesummary) <- c("Mother Age","Father Age")
+knitr::kable(agesummary, caption = "Mother and Father Age Statistics")
 ```
 
 The father and mother age variables both have fairly normal distributions around the 30-year mark, with the father age variable having a slight positive skew. This should mean that this dataset is fairly representative from an age perspective. 
@@ -126,14 +132,16 @@ The father and mother age variables both have fairly normal distributions around
 **Education variables**
 
 ```{r meduc}
-ggplot(data = data, aes(x = meduc)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", origin = -0.5, bins = 30) + ggtitle("Education Level of Mothers") + xlab("Education (Years)") + ylab("Count") + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+ggplot(data = data, aes(x = meduc)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5, bins = 30) + ggtitle("Education Level of Mothers") + xlab("Education (Years)") + ylab("Count") + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
 ```
 
 The mother and father education variables both show signs of graduation effect at the 12 (high school) and 16 (college) mark. Therefore, we can bucket this variable into high school, college, and further education (see Variable Transformation below).
 
 ```{r}
-cor(data[complete.cases(data$feduc) & complete.cases(data$meduc),]$feduc, data[complete.cases(data$feduc) & complete.cases(data$meduc),]$meduc)
+cor(data[complete.cases(data$feduc) & complete.cases(data$meduc),]$feduc, 
+    data[complete.cases(data$feduc) & complete.cases(data$meduc),]$meduc)
 ```
+
 Additionally, there is about 60% correlation between the education of the mother and father of each baby in the dataset, which aligns with the general notion that people marry others of the same education level.
 
 **Cigarettes**
@@ -141,7 +149,7 @@ Additionally, there is about 60% correlation between the education of the mother
 ```{r cigs}
 
 ggplot(data = data, aes(x = cigs)) + 
-  geom_histogram(fill="dodgerblue1", colour = "black", origin = -0.5) +
+  geom_histogram(fill="dodgerblue1", colour = "black", boundary = -0.5) +
   ggtitle("Daily Cigarette Consumption During Pregnancy") + 
   ylab("Count") + 
   xlab("Cigarettes Per Day") + theme(axis.text.x = element_text(face = "bold"), 
@@ -150,7 +158,7 @@ ggplot(data = data, aes(x = cigs)) +
                                                                hjust = 0.5))
 ```
 
-The cigarettes variable has a peak at zero and a strong positive skew. Only about 14% of the data is of actual smokers, so we could get some skewed results. The distribution is very dispersed, with peaks at the 10, 20, 30, and 40 mark. This shows that people tended to round to these values, perhaps because they didn't know the exact number. It could also be the case that people tend to round down such values. This could lead to loss of important detail in the data, but the variable could still be used as an indicator of whether people are heavy, light or non-smokers in general (see variable transformation below).
+The cigarettes variable has a peak at zero and a strong positive skew. Only about 14% of the data is of actual smokers, so we could get some skewed results. The distribution is very dispersed, with peaks at the 10, 20, 30, and 40 mark. This shows that people tended to round to these values, perhaps because they didn't know the exact number. This could lead to loss of important detail in the data, but the variable could still be used as an indicator of whether people are heavy, light or non-smokers in general (see variable transformation below).
 
 **Drinking**
 
@@ -158,27 +166,37 @@ In this dataset, there are only about 16 people that actually drank any alcohol 
 
 **Infant Gender**
 
+```{r}
+male <- length(data$male[data$male == 1])
+female <- length(data$male[data$male == 0])
+gender <- cbind(male,female)
+colnames(gender) <- c("Male","Female")
+knitr::kable(gender, caption = "Baby Gender Frequency")
+```
+
 There are 891 female and 941 male infants in this data set. This might be a useful  variable that might help us control for physiological factors unique to male and female infants.
 
 **Race**
 
 ```{r mwhte}
-nrow(data[data$mwhte == 1,]) # 1624
-nrow(data[data$mblck == 1,]) # 109
-nrow(data[data$moth == 1,]) # 99
-nrow(data[data$fwhte == 1,]) # 1630
-nrow(data[data$fblck == 1,]) # 107
-nrow(data[data$foth == 1,]) # 95
+mrace <- cbind(nrow(data[data$mwhte == 1,]), # 1624
+              nrow(data[data$mblck == 1,]), # 109
+              nrow(data[data$moth == 1,])) # 99
+frace <- cbind(nrow(data[data$fwhte == 1,]), # 1630
+              nrow(data[data$fblck == 1,]), # 107
+              nrow(data[data$foth == 1,])) # 95
+colnames(mrace) <- c("White","Black","Other")
+colnames(frace) <- c("White","Black","Other")
+knitr::kable(mrace, caption = "Mother Race Frequency")
+knitr::kable(frace, caption = "Father Race Frequency")
 ```
 
-This study covers 1624 white, 109 black and 99 women of other races. The results for men is similar. While we don't expect race to have any effect on infant health, it is worth noting that the data is very skewed. 
+This study covers 1620 white, 108 black and 99 women of other races. The results for men is similar. While we don't expect race to have any effect on infant health, it is worth noting that the data is very skewed. 
 
 
 ## Variable transformation
 
 ```{r}
-data$npvismonth <- data$npvis/(10-data$monpre)
-
 data$nonsmoker <- ifelse(data$cigs == 0, 1, 0)
 data$smoker <- ifelse(data$cigs > 0, 1, 0)
 data$lightsmoker <- ifelse(data$cigs > 0 & data$cigs <= 10, 1, 0)
@@ -196,7 +214,10 @@ data$ffureduc <- ifelse(data$feduc >= 16, 1, 0)
 
 
 
-# Correct model 1
+# Model Development
+
+## Initial Model
+
 Our first model uses birth weight as the dependent variable and regresses it on what we consider the key independent variables: number of prenatal visits and month at which visits started.
 
 ```{r model1}
@@ -205,7 +226,7 @@ plot(model1)
 ```
 
 
-## CLM Assumptions
+## CLM Assumptions For Initial Model
 
 **Linearity of Parameters**
 
@@ -230,7 +251,8 @@ Looking at the residuals vs. fitted graph and the scale-location plot, we can se
 
 Looking at the Q-Q plot, we can see that the normality assumption is violated on the left side of the graph, around -2 standard deviations, where we have a heavy left tail. However, as we have a fairly large dataset, we can rely on asymptotics for this fairly normal dataset. 
 
-# Model 1 Interpretation
+## Initial Model Interpretation
+
 ```{r}
 coeftest(model1, vcov = vcovHC)
 AIC(model1)
@@ -238,8 +260,10 @@ AIC(model1)
 
 Using the robust standard errors, we can see that the number of prenatal visits variable is statistically significant. The built-in F-test also shows us that our choice of variables does have some result. Its coefficient can be interpreted as: for every extra visit, the birth weight of the baby increases by 18 grams.
 
-# Correct model 2
+## Second Model
+
 For the second model, we add some variables that should help us control for some other factors, such as the mother's age, smoking habits, her educational background, and the baby's gender.  Controlling for the baby's gender is important because there might be physiological factors different for baby boys and baby girls.  Controlling for the mother's smoking  and age allows us to capture the effect this might have on the health of the baby. Finally, controlling for the mother's education could also be important, because more educated people might make more healthy choices during pregnancy and might be more aware of what to avoid for the baby's health. 
+
 ```{r model2}
 model2 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc, data = data)
 plot(model2, which = 1)
@@ -247,32 +271,39 @@ plot(model2, which = 1)
 
 In terms of CLM assumptions, we see that the residuals vs fitted graph displays a much more horizontal line, meaning that the zero conditional mean is even more satisfied. At the same time, the band of residuals seems to be more consistent from left to right, showing better signs of homoskedasticity.
 
-# Model 2 Interpretation
+## Second Model Interpretation
+
 ```{r}
 coeftest(model2, vcov = vcovHC)
 linearHypothesis(model2, c("mage = 0", "mheduc= 0", "mceduc = 0"), vcov = vcovHC)
 ```
+
 We can see that whether the mother smokes or not and whether the baby is male or not has a statistical significance when predicting birth weight. They also seem to have some practical significance, as a male baby will be 82 grams heavier than a female baby, ceteris paribus. Similarly, mothers that smoke will have babies that are 200 grams (a significant amount) lighter than if the mothers didn't smoke. The direction of these coefficients are in line with what we would generally assume.
 
 The mother's age and levels of education aren't statistically significant on their own, and an F-test confirms that they are not jointly statistically significant as well. 
 
-# Correct Model 3
+## Third Model
+
 In our final model, we use all the above variables, but we also add variables related to the father's age and education. We don't expect these to have an effect on the baby's birthweight, although our model might be less reliable because of the higher correlation between the father and mother's parameters. 
+
 ```{r model3}
 model3 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc + fheduc + fceduc + fage, data = data)
 vif(model2)
 vif(model3) # variance inflation factor: how trustworthy our estimates are. 
 ```
+
 The plots don't display any visible changes to the assumptions. However, we can compare the variance inflation factor between the second and third models. The vif for the mage, mheduc, and mceduc variables has increased substantially, which could indicate that this model violates the multicollinearity assumption.  
 
-# Model 3 Interpretation
+## Third Model Interpretation
+
 ```{r}
 coeftest(model3, vcov = vcovHC)
 linearHypothesis(model3, c("fheduc = 0", "fceduc = 0", "fage = 0", "mage = 0", "mheduc= 0", "mceduc = 0"), vcov = vcovHC)
 ```
+
 The newly added variables don't seem to be individually statistically significant. Additionally, an F-test shows that they aren't jointly statistically significant as well. Looking at their coefficients, we can see that they seem to point in illogical directions. 
 
-**Regression Table**
+## Model Comparison
 
 ```{r, results  = 'asis'}
 stargazer(model1, model2, model3, type = "latex", report = "vc", header = FALSE,
@@ -288,6 +319,7 @@ stargazer(model1, model2, model3, type = "latex", report = "vc", header = FALSE,
 TO DO: here we can compare practical/statistical significance, std errors and AIC values of the three models.
 
 # Causality discussion
+
 The first step in assessing whether a causal argument can be made begins with understanding the data generating process. Ideally, we would want a randomized controlled study; this would give us the power to isolate the effects of causes. We know from the information provided that this data come from National Center for Health Statistics, and a cursory search suggests that the CDC would implement a highly rigorous randomized design. However, there is no evidence to suggest some sort of control mechanism was in place. Since we are dealing with maternal behavior during pregnancy, it is unreasonable and possibly unethical to deny some mothers the ability to adopt behaviors that may be beneficial for their fetus. From this reasoning, it would appear that the data we have come from an observational study.
 
 The mere fact that the data come from an observational study does not destroy the ability to detect the effects of causes. However, we would need to know more about the data collection process. How many mothers dropped out of the study? Are there imbalances on some of the variables that we measured? For example, it might be that the proportion of highly educated women is higher than it is in the population. The lack of information on the data collection procedures casts grave doubt on whether we can interpret the results of our regression analysis causally.
