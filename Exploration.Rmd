@@ -20,7 +20,7 @@ library(leaps)
 
 # Introduction
 
-For much of human existence, child birth has been an extraordinarily risky endeavor, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the rate of child berth related deaths and of child deaths. While this is something to applaud, there is still much work to be done. Child development after birth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effects on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, we seek to determine whether prenatal care has an effect on the health of a newborn.
+For much of human existence, child birth has been an extraordinarily risky endeavor, often ending with the death of either the mother or baby. With the advent of modern medicine and technology, much of the world has seen a significant reduction in the rate of child birth related deaths and of child deaths. While this is something to applaud, there is still much work to be done. Child development after birth is a crucial period during which many of the neurological and motor skills necessary for a full and healthy life ossify. Anything parents can do to increase the healthiness of the baby in this period could have substantial effects on a baby's health. One avenue that might have a positive impact is during the actual pregnancy. Some women engage in prenatal activities that may be risky and others engage in prenatal activities that might be salubrious. In this study, we seek to determine whether prenatal care has an effect on the health of a newborn.
 
 
 # Data Load
@@ -291,6 +291,33 @@ knitr::kable(feduc, caption = "Father Education Categories Frquency")
 ```
 
 
+## Bivariate Analysis
+
+A final step in the exploratory data analysis involves inspecting the bivariate relationships to determine whether there are nonlinear relationships present. This step will also help us develop an intuition about what results to expect and possibly troubleshoot outlier issues that may arise during the modeling procees. We only include plots of our key prenatal independent variables and the dependent birthweight variable.
+
+The bivariate plot of number of prenatal visits and infant birthweight shows that some amount of visits do seem to be related to an increase in birthweight. However, this positive trend levels off around visit 12. There appear to be some potential outliers towards the right end of visit axis; these seem to result in a wider variance for the loess line. We will want to check whether these points are influential or not when we do our regression analysis.
+
+```{r, echo = F}
+ggplot(data = data, aes(x = data$npvis, y = data$bwght)) + geom_point() + geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + 
+      ggtitle("Total Number of Prenatal Visits vs. Infant Birthweight") + 
+      xlab("Total Number of Prenatal Visits") + ylab("Birthweight (grams)") + 
+      theme(axis.text.x = element_text(face = "bold"), 
+            axis.text.y = element_text(face = "bold"), 
+            plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+```
+
+When we look at the month prenatal care began vs. birthweight, we are surprised to see a nearly flat loess line. That is, when prenatal care starts is unrelated to the birthweight of a baby. Intuitively, we would expect mother's who start early to be more informed and more conscientious than other mothers. This does not appear to be the case. Therefore, we would not expect this variable to carry much weight in the regression analysis.
+
+```{r, echo = F}
+ggplot(data = data, aes(x = data$monpre, y = data$bwght)) + geom_point() + geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + 
+      ggtitle("Month Prenatal Care Began vs. Infant Birthweight") + 
+      xlab("Start Month of Prenatal Care") + ylab("Birthweight (grams)") + 
+      theme(axis.text.x = element_text(face = "bold"), 
+            axis.text.y = element_text(face = "bold"), 
+            plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+```
+
+
 # Model Development
 
 ## Initial Model
@@ -451,7 +478,7 @@ Two of the new variables introduced in the second model are statistically signif
 
 For the third model, we added the variables containing age and education for the babys' fathers. By doing this, we note that we have a better Adjusted $R^2$ and Akaike Information Criterion value indicating that this model is a better fit than the previous one and the addition of new variables is worthwhile in explaining the variation in the data. However, we must note that, as explained before, given that the father age and education variables are highly correlated with the mother age and education variables, their addition also increased the Variance Inflation Factor in our regression coefficients. Therefore, the trade-off between better fit and increased variance should be thoroughly analyzed before choosing between one or the other.
 
-By verifying the third model, we can see that all previous significant variables remained significant, except for the month prenatal care began, and that the father age is highly statistically significant. Its coefficient indicates that for each additional year in the father age, holding everything else constant, the baby is likely to present an approximate 9.4 grams increase in weight. While this may seem a small value, a 40-year-old father would probably generate a baby 94 grams heavier than a 30-year-old father. As explained before, it goes against the logic that older fathers would give birth to healthier babies, so this could be a potential confounding effect that we should be aware of that is probably related to family income, which we would expect to be higher for older fathers, or the capability of older fathers to provide for mothers while they are dedicated to their pregnancy.
+By verifying the third model, we can see that all previous significant variables remained significant, except for the month prenatal care began, and that the father age is highly statistically significant. Its coefficient indicates that for each additional year in the father age, holding everything else constant, the baby is likely to present an approximate 9.4 grams increase in weight. While this may seem a small value, a 40-year-old father would, on average, have a baby that is 94 grams heavier than a 30-year-old father. As explained before, it goes against the logic that older fathers would give birth to healthier babies, so this could be a potential confounding effect that we should be aware of that is probably related to family income, which we would expect to be higher for older fathers, or the capability of older fathers to provide for mothers while they are dedicated to their pregnancy.
 
 # Fun Model Selection Comparison
 
@@ -472,6 +499,7 @@ The mere fact that the data come from an observational study does not destroy th
 
 As a check on causality, we would wish to see data collected on many variables that we would intuitively believe to be important. For example, whether a mother carries the baby to term or delivers prematurely could have a large effect on baby health; whether there are complications during the pregnancy that affect the growth of the fetus may also play a role; and lastly, general health of the mother may also figure into the equation. When we do not have these variables they get put into the error term, which we are not able to control. This fact together with the lack of information on randomization is a death knell for any causal interpretation.
 
+In one final blow to causality and any interpretation of these analyses, many different models were run without concern for issues of multiple hypothesis testing. No correction was used to ensure that the p-values calculated were corrected for the multiple hypotheses, so there is a higher likelihood that the statistically significant results we found are spurious.
 
 # Conclusion
 
@@ -479,8 +507,8 @@ Even though we cannot make causal claims from our analyses, the results are none
 
 It is clear from our analyses that smoking has a negative effect on the health of an infant. Education on this matter should start early and be reinforced over time. Due to the small representativeness in the sample, we cannot make any affirmation regarding drinking during pregnancy. 
 
-Other demographic variables play a role in the health of an infant, but deciphering their meaning is not so straightforward. For instance, we found that the father's age has a positive influence in the baby's birthweight, but it is unlikely that this is a direct relationship especially because it goes against the logic. What is most likely is that older fathers probably have waited until achieving some financial stability or professional success before having a child, and therefore were able to provide for the family while the mother is dedicated to her pregnancy and prenatal care. It is also possible that older fathers already had other children, and therefore have better knowledge on pregnancy and prenatal care best practices.
+Other demographic variables play a role in the health of an infant, but deciphering their meaning is not so straightforward. For instance, we found that the father's age has a positive influence in the baby's birthweight, but it is unlikely that this is a direct relationship especially because it goes against the aforementioned logic. We believe it is most likely that older fathers might have waited until achieving some modicum of financial stability or of professional success before having a child, and therefore were able to provide for the family while the mother is dedicated to her pregnancy and prenatal care. It is also possible that older fathers already had other children, and therefore are more informed regarding pregnancy and prenatal care best practices.
 
-All of those are variables that would be interesting to look at and understand the whole scenario on a newborn's health, which are now probably being accounted in the error term. Also, the omission of such important variables may be causing omitted variable bias in the previously regressed models and hence causing the coefficients to also be highly biased.
+In conclusion, many of the variables that could be integral to understanding the larger picture with regard to an infant's health are now being captured in the error term. The omission of such important variables may be causing omitted variable bias in the previously regressed models and hence causing the coefficients to also be highly biased. While our report does appear to give clear guidance on the matters of smoking and prenatal care visits, these conclusions must be taken with a grain of salt due to the organization of the underlying study.
 
 
