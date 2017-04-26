@@ -338,7 +338,7 @@ model2 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc, dat
 plot(model2, which = 1)
 ```
 
-In terms of CLM assumptions, we see that the residuals vs fitted graph above displays a much more horizontal line, meaning that the zero conditional mean is even more satisfied. At the same time, the band of residuals seems to be more consistent from left to right, showing better signs of homoskedasticity.
+After investigating all of the diagnostic plots associated with the classical linear model assumptions, we believe there is not much of a change from the diagnostics in the first model. We do happen to see a slight improvement in the flatness of the line in the residuals vs. fitted plot, which we include here. This suggests improvement in meeting the zero conditional mean. For all intents and purposes, this fit may be as good as we can get with regards to completely satisfying the zero-mean conditional assumption. It is tough to visually diagnose small improvements towards homoskedasticity, but we believe the variation of residuals is now marginally more consistent from left to right, showing better signs of homoskedasticity.
 
 
 ## Second Model Interpretation
