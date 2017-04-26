@@ -297,8 +297,9 @@ A final step in the exploratory data analysis involves inspecting the bivariate 
 
 The bivariate plot of number of prenatal visits and infant birthweight shows that some amount of visits do seem to be related to an increase in birthweight. However, this positive trend levels off around visit 12. There appear to be some potential outliers towards the right end of visit axis; these seem to result in a wider variance for the loess line. We will want to check whether these points are influential or not when we do our regression analysis.
 
-```{r, echo = F}
-ggplot(data = data, aes(x = data$npvis, y = data$bwght)) + geom_point() + geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + 
+```{r}
+ggplot(data = data, aes(x = data$npvis, y = data$bwght)) + geom_point() + 
+      geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + 
       ggtitle("Total Number of Prenatal Visits vs. Infant Birthweight") + 
       xlab("Total Number of Prenatal Visits") + ylab("Birthweight (grams)") + 
       theme(axis.text.x = element_text(face = "bold"), 
@@ -308,8 +309,9 @@ ggplot(data = data, aes(x = data$npvis, y = data$bwght)) + geom_point() + geom_s
 
 When we look at the month prenatal care began vs. birthweight, we are surprised to see a nearly flat loess line. That is, when prenatal care starts is unrelated to the birthweight of a baby. Intuitively, we would expect mother's who start early to be more informed and more conscientious than other mothers. This does not appear to be the case. Therefore, we would not expect this variable to carry much weight in the regression analysis.
 
-```{r, echo = F}
-ggplot(data = data, aes(x = data$monpre, y = data$bwght)) + geom_point() + geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + 
+```{r}
+ggplot(data = data, aes(x = data$monpre, y = data$bwght)) + geom_point() + 
+      geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + 
       ggtitle("Month Prenatal Care Began vs. Infant Birthweight") + 
       xlab("Start Month of Prenatal Care") + ylab("Birthweight (grams)") + 
       theme(axis.text.x = element_text(face = "bold"), 
@@ -457,11 +459,10 @@ Table 11 displayed below shows a comparison between all three models developed i
 model1stat <- coeftest(model1, vcov = vcovHC)
 model2stat <- coeftest(model2, vcov = vcovHC)
 model3stat <- coeftest(model3, vcov = vcovHC)
-stargazer(model1, model2, model3, type = "latex", report = "vcstp*", header = FALSE,
+stargazer(model1, model2, model3, type = "latex", report = "vcsp*", header = FALSE,
           coef = list(model1stat[,"Estimate"],model2stat[,"Estimate"],model3stat[,"Estimate"]),
           se = list(model1stat[,"Std. Error"],model2stat[,"Std. Error"],model3stat[,"Std. Error"]),
-          t.auto = TRUE, p.auto = TRUE,
-          title = "Prenatal Care Influence In Birthweight",
+          p.auto = TRUE, title = "Prenatal Care Influence In Birthweight",
           keep.stat = c("rsq", "aic", "n", "adj.rsq"),
           single.row = TRUE,
           omit.table.layout = "n",
