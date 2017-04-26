@@ -6,7 +6,7 @@ date: "4/26/2017"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(car)
 library(lmtest)
@@ -71,7 +71,7 @@ We now look at the prospective dependent variables we might use to measure infan
 
 **Birth Weight**
 
-```{r bwght, include = F}
+```{r bwght, echo = F}
 ggplot(data = data, aes(x = data$bwght)) + geom_histogram(bins = 50, fill="dodgerblue1", colour = "black") +
   ggtitle('Birthweight of Infants') + xlab("Baby Birthweight (in grams)") +
   ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
@@ -97,7 +97,7 @@ Therefore, this means that the APGAR scores are essentially an ordinal variable,
 
 **Length of Prenatal Care**
 
-```{r monpre, include = F}
+```{r monpre, echo = F}
 ggplot(data = data, aes(x = data$monpre)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5) +
   ggtitle('Month Prenatal Care Started') + xlab("Month") +
   ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) + scale_x_continuous(breaks = c(0:10))
@@ -107,7 +107,7 @@ The monpre variable signifies the month of pregnancy at which prenatal care star
 
 **Number of Prenatal Visits** 
 
-```{r npvis, include = F}
+```{r npvis, echo = F}
 ggplot(data = data, aes(x = data$npvis)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5, bins = 30) +
   ggtitle('Number of Prenatal Care Visits') + xlab("Prenatal Care Visits") +
   ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
@@ -116,7 +116,7 @@ ggplot(data = data, aes(x = data$npvis)) + geom_histogram(binwidth = 1, fill="do
 The number of prenatal visits is another key metric we expect will have an effect on infant health. It has a strong positive skew, and we can see a massive peak at 12 visits. This could be because mothers with insurance that took part in this study were eligible for a certain number of prenatal visits (possibly 12) for free, leading to a lot of women making exactly that many visits. The question of who pays for these visits could have a confounding effect, because it is more likely for mothers to make more visits if they are free and they would probably make less visits if they aren't. 
 Plotting the bivariate relationship between number of visits and the month at which prenatal care started (see below), we can see the possible outliers in the top right portion of the plot. These  mothers had around 30 visits, even though they started their prenatal care in the 8th month. It could be the case that these mothers were admitted into hospital for a long period for a specific health problem, but we should check if these  points have an influence on the regression line of our models. 
 
-```{r, include = F}
+```{r, echo = F}
 ggplot(data = data, aes(x =data$monpre , y = data$npvis)) + geom_point() + geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + ggtitle("Month Prenatal Care Began vs. Total Number of Prenatal Visits") + xlab("Month Prenatal Care Began") + ylab("Total Number of Prenatal Visits") + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) + scale_x_continuous(breaks = c(0:9))
 ```
 
@@ -150,7 +150,7 @@ Additionally, there is about 60% correlation between the education of the mother
 
 **Cigarettes**
 
-```{r cigs, include = F}
+```{r cigs, echo = F}
 
 ggplot(data = data, aes(x = cigs)) + 
   geom_histogram(fill="dodgerblue1", colour = "black", boundary = -0.5) +
@@ -412,13 +412,24 @@ stargazer(model1, model2, model3, type = "latex", report = "vcstp*", header = FA
 
 ```
 
-When we add in our control variables in the second model, we clearly witness a great improvement to $R^2$, meaning that a greater part of the variation in our model is now explained by the new variables added. Although this is expected, as $R^2$ always increases when adding new variables, other measurements used that penalize the model for added complexity such as the Adjusted $R^2$ and Akaike Information Criterion, also displayed in table 11, both demonstrate improvement in model fit.
+When we add in our control variables in the second model, we witness over a doubling in $R^2$, meaning that this model now accounts for more of the variation in the data than the model without the control variables. Although this is expected, as $R^2$ always increases when adding new variables, other measurements used that penalize the model for added complexity such as the Adjusted $R^2$ and Akaike Information Criterion, also displayed in table 11, both demonstrate improvement in model fit.
 
-Two of the new variables introduced in the second model have great statistical significance, `smoker` and `male`. Both cases also display practical significance, with the coefficient values indicating that a male baby is likely to be 73 grams heavier when everything else is held constant and that a smoker mother is likely to have a baby 205 grams lighter than a non-smoking mother, ceteris paribus. The addition of new variables also made the initial month for prenatal care statistically significant at a 95% confidence level. This indicates that mothers would be likely to have a baby 24 grams heavier for each month closer to conception when they begin their prenatal care, which goes against our preconceived notion that longer prenatal care would be more likely to result in healthier babies.
+Two of the new variables introduced in the second model are statistically significant at the .001 level: `smoker` and `male`. Both cases also display practical significance, with the coefficient values indicating that a male baby is likely to be 73 grams heavier when everything else is held constant and that a smoker mother is likely to have a baby 205 grams lighter than a non-smoking mother on average, ceteris paribus. The addition of new variables also made the initial month for prenatal care statistically significant at a 95% confidence level. This indicates that mothers would be likely to have a baby 24 grams heavier for each month closer to conception when they begin their prenatal care, which goes against our preconceived notion that longer prenatal care would be more likely to result in healthier babies.
 
 For the third model, we added the variables containing age and education for the babys' fathers. By doing this, we note that we have a better Adjusted $R^2$ and Akaike Information Criterion value indicating that this model is a better fit than the previous one and the addition of new variables is worthwhile in explaining the variation in the data. However, we must note that, as explained before, given that the father age and education variables are highly correlated with the mother age and education variables, their addition also increased the Variance Inflation Factor in our regression coefficients. Therefore, the trade-off between better fit and increased variance should be thoroughly analyzed before choosing between one or the other.
 
 By verifying the third model, we can see that all previous significant variables remained significant, except for the month prenatal care began, and that the father age is highly statistically significant. Its coefficient indicates that for each additional year in the father age, holding everything else constant, the baby is likely to present an approximate 9.4 grams increase in weight. While this may seem a small value, a 40-year-old father would probably generate a baby 94 grams heavier than a 30-year-old father. As explained before, it goes against the logic that older fathers would give birth to healthier babies, so this could be a potential confounding effect that we should be aware of that is probably related to family income, which we would expect to be higher for older fathers, or the capability of older fathers to provide for mothers while they are dedicated to their pregnancy.
+
+# Fun Model Selection Comparison
+
+We want to see how our models compare to a software package designed to maximize adjusted $R^2$ by searching over all possible subsets of the explanatory variables. The package in R is Leaps and we used it to conduct an exhaustive search, although no interaction terms or higher order polynomials were incluced. The results are illuminating. Including the number of prenatal visits squared in the model seems to increase the adjusted $R^2$; this would mean that the relationship between the number of visits and the weight of an infant is nonlinear. And surprisingly, race appears to matter in some cases, specifically with the father. We would not have expected this kind of result and it may suggest that these variables are proxies for something else. Regardless, it would appear we left some variation that could have been accounted for on the table in favor of a more parsimonious model.
+```{r regsubsets, echo = F}
+regsubsets_out <- regsubsets(bwght ~ mage + monpre + npvis + fage  + smoker + drink + male + mwhte + mblck + fwhte + fblck + npvissq + mheduc + mceduc + fheduc + fceduc, data = data, nbest = 1, nvmax = NULL, force.in = NULL, force.out = NULL, method = "exhaustive")
+summary_out <- summary(regsubsets_out)
+as.data.frame(summary_out$outmat)
+
+plot(regsubsets_out, scale = "adjr2", main = "Adjusted R^2")
+```
 
 # Causality discussion
 
@@ -428,18 +439,9 @@ The mere fact that the data come from an observational study does not destroy th
 
 As a check on causality, we would wish to see data collected on many variables that we would intuitively believe to be important. For example, whether a mother carries the baby to term or delivers prematurely could have a large effect on baby health; whether there are complications during the pregnancy that affect the growth of the fetus may also play a role; and lastly, general health of the mother may also figure into the equation. When we do not have these variables they get put into the error term, which we are not able to control. This fact together with the lack of information on randomization is a death knell for any causal interpretation.
 
-Model Selection Using Leaps
-```{r}
-str(data)
-regsubsets_out <- regsubsets(bwght ~ mage + meduc + monpre + npvis + fage + feduc + cigs + drink + male + mwhte + mblck + fwhte + fblck + npvissq, data = data, nbest = 1, nvmax = NULL, force.in = NULL, force.out = NULL, method = "exhaustive")
-summary_out <- summary(regsubsets_out)
-as.data.frame(summary_out$outmat)
-
-
-plot(regsubsets_out, scale = "adjr2", main = "Adjusted R^2")
-```
-
 
 # Conclusion
+
+Even though we cannot make causal claims from our analyses, the results are nonetheless important for informing policy. We can say that prenatal visits and when a mother starts those visits are associated with the weight of an infant. Policy makers would want to encourage newly expecting mothers to start their prenatal visits early and to go often. Although the likely impact on the health of an infant may not be exceedingly large, in the worst case scenarios the visits may be a good check against unforeseen issues that may not be captured in the data. It is clear from our analyses that smoking has a negative effect on the health of an infant. Education on this matter should start early and be reinforced over time. Other demographic variables play a role in the health of an infant, but deciphering their meaning is not so straightforward.
 
 
