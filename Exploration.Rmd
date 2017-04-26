@@ -264,43 +264,65 @@ Our first model uses birth weight as the dependent variable and regresses it on 
 
 ```{r model1}
 model1 = lm(bwght ~ monpre + npvis, data = data)
-plot(model1)
 ```
 
+This model will now be analyzed in further detail for all Classical Linear Model assumptions and its interpretation.
 
 ## CLM Assumptions For Initial Model
 
 **Linearity of Parameters**
 
-Looking at the residuals vs. fitted graph, we don't see any systematic bias or non-linear shapes in the data that might indicate that the underlying population is not linear with respect to the parameters.
+Looking at the residuals vs. fitted graph below, we don't see any systematic bias or non-linear shapes in the data that might indicate that the underlying population is not linear with respect to the parameters.
+
+```{r}
+plot(model1, which = 1)
+```
 
 **Random Sample**
 
-The information provided in this data set does not allow us to judge the sampling procedure of this study and determine whether it is random or not. While we can see a large group of respondents that didn't answer both the cigarettes and drinks question, this isn't enough evidence to assume lack of randomness. Similarly, the high median values for the one-minute and five-minute APGAR scores might make us question the random sampling assumption, but such distribution might actually be representative of a healthy population in a developed country like the USA. Finally, there is the potential for correlation between patients if the sampling was done at a hospital level, but we don't have enough information to assess this.
+The information provided in this data set does not allow us to judge the sampling procedure of this study and determine whether it is random or not. While we can see a large group of respondents that didn't answer both the cigarettes and drinks question, this isn't enough evidence to assume lack of randomness. 
+
+Similarly, the high median values for the one-minute and five-minute APGAR scores might make us question the random sampling assumption, but such distribution might actually be representative of a healthy population in a developed country like the USA. Finally, there is the potential for correlation between patients if the sampling was done at a hospital level, but we don't have enough information to assess this and therefore the sample will be considered random.
+
+Verifying the Residuals vs Leverage plot below, we can see that although we have a few data points with great leverage, there are none exerting great influence in the fitted model.
+
+```{r}
+plot(model1, which = 5)
+```
 
 **Multicollinearity**
-We used a correlation matrix to look at the correlation between the variables we wanted to use in our models, and we didn't find any two that were perfectly correlated.
+
+We used a correlation matrix to look at the correlation between the variables we wanted to use in our models, which won't be reproduced here due to space constraints, and we didn't find any two that were perfectly correlated.
 
 **Zero-Conditional Mean**
 
-Instead of a horizontal line at 0, our residuals vs. fitted graph displays a negative trending line in our starts above zero and ends below it. The deviations from zero happen towards the fringes of the fitted values, suggesting that high leverage points may be affecting the fit of the model or that not enough data was collected for these values. Within the most dense portion of the data, we do see that the zero mean conditional is satisfied. Overall, we believe this assumption is satisfied.
+Instead of a horizontal line at 0, our residuals vs. fitted graph, already displayed above, shows a negative trending line in our starts above zero and ends below it. The deviations from zero happen towards the fringes of the fitted values, suggesting that high leverage points may be affecting the fit of the model or that not enough data was collected for these values. Within the most dense portion of the data, we do see that the zero mean conditional is satisfied. Overall, we believe this assumption is satisfied.
 
 **Homoskedasticity**
 
-Looking at the residuals vs. fitted graph and the scale-location plot, we can see that the middle of the data looks fairly homoskedastic, while variance (and the number of data points) seems to decrease as we move to the left and right. This could be evidence of potential heteroskedasticity, but we don't know if that is genuine or just an artifact of the small number of data points in the extreme. Therefore, we choose to err on the side of caution and use heteroskedasticity-robust standard errors in our calculation.
+Looking at the residuals vs. fitted graph displayed previously and the scale-location plot below, we can see that the middle of the data looks fairly homoskedastic, while variance (and the number of data points) seems to decrease as we move to the left and right. This could be evidence of potential heteroskedasticity, but we don't know if that is genuine or just an artifact of the small number of data points in the extreme. Therefore, we choose to err on the side of caution and use heteroskedasticity-robust standard errors in our calculation.
+
+```{r}
+plot(model1, which = 3)
+```
 
 **Normality**
 
-Looking at the Q-Q plot, we can see that the normality assumption is violated on the left side of the graph, around -2 standard deviations, where we have a heavy left tail. However, as we have a fairly large dataset, we can rely on asymptotics for this fairly normal dataset. 
+Looking at the Q-Q plot below, we can see that the normality assumption is violated on the left side of the graph, around -2 standard deviations, where we have a heavy left tail. However, as we have a fairly large dataset, we can rely on asymptotics for this fairly normal dataset. 
+
+```{r}
+plot(model1, which = 2)
+```
 
 ## Initial Model Interpretation
 
 ```{r}
 coeftest(model1, vcov = vcovHC)
-AIC(model1)
 ```
 
-Using the robust standard errors, we can see that the number of prenatal visits variable is statistically significant. The built-in F-test also shows us that our choice of variables does have some result. Its coefficient can be interpreted as: for every extra visit, the birth weight of the baby increases by 18 grams.
+Using the robust standard errors, we can see that the number of prenatal visits variable is statistically significant, while the month that prenatal care began is not. The built-in F-test also shows us that our choice of variables does have some result. 
+
+An interpretation of this model could be that, everything else held constant, for every additional prenatal visit the baby's birthweight would increase by approximately 18 grams. While this is statistically significant, it does not seem to be very practically significant.
 
 ## Second Model
 
@@ -311,7 +333,8 @@ model2 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc, dat
 plot(model2, which = 1)
 ```
 
-In terms of CLM assumptions, we see that the residuals vs fitted graph displays a much more horizontal line, meaning that the zero conditional mean is even more satisfied. At the same time, the band of residuals seems to be more consistent from left to right, showing better signs of homoskedasticity.
+In terms of CLM assumptions, we see that the residuals vs fitted graph above displays a much more horizontal line, meaning that the zero conditional mean is even more satisfied. At the same time, the band of residuals seems to be more consistent from left to right, showing better signs of homoskedasticity.
+
 
 ## Second Model Interpretation
 
@@ -320,21 +343,33 @@ coeftest(model2, vcov = vcovHC)
 linearHypothesis(model2, c("mage = 0", "mheduc= 0", "mceduc = 0"), vcov = vcovHC)
 ```
 
-We can see that whether the mother smokes or not and whether the baby is male or not has a statistical significance when predicting birth weight. They also seem to have some practical significance, as a male baby will be 82 grams heavier than a female baby, ceteris paribus. Similarly, mothers that smoke will have babies that are 200 grams (a significant amount) lighter than if the mothers didn't smoke. The direction of these coefficients are in line with what we would generally assume.
+We can see that whether the mother smokes or not and whether the baby is male or not has a statistical significance when predicting birth weight. They also seem to have some practical significance, as a male baby will be 73 grams heavier than a female baby, ceteris paribus. Similarly, mothers that smoke will have babies that are 205 grams (a significant amount) lighter than if the mothers didn't smoke. The direction of these coefficients are in line with what we would generally assume.
+
+It is also interesting to note that is this model, the month of the first prenatal visit became statistically significant, indicating that for each month closer to the date the baby is born there is a 24 gram increase in birthweight, which would go in the opposite direction of what we would think.
 
 The mother's age and levels of education aren't statistically significant on their own, and an F-test confirms that they are not jointly statistically significant as well. 
 
 ## Third Model
 
-In our final model, we use all the above variables, but we also add variables related to the father's age and education. We don't expect these to have an effect on the baby's birthweight, although our model might be less reliable because of the higher correlation between the father and mother's parameters. 
+In our final model, we use all the above variables, but we also add variables related to the father's age and education. We don't expect these to have an effect on the baby's birthweight, although our model might be less reliable because of the higher correlation between the father and mother age parameters. 
 
 ```{r model3}
 model3 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc + fheduc + fceduc + fage, data = data)
-vif(model2)
-vif(model3) # variance inflation factor: how trustworthy our estimates are. 
+plot(model3, which = 1)
 ```
 
-The plots don't display any visible changes to the assumptions. However, we can compare the variance inflation factor between the second and third models. The vif for the mage, mheduc, and mceduc variables has increased substantially, which could indicate that this model violates the multicollinearity assumption.  
+The plots don't display any visible changes to the assumptions. However, we can compare the variance inflation factor between the second and third models.
+
+```{r}
+vif2 <- c(vif(model2),NA,NA,NA)
+vif3 <- vif(model3)
+names(vif2) <- names(vif3)
+vifs23 <- rbind(vif2,vif3)
+rownames(vifs23) <- c("(2)","(3)")
+knitr::kable(vifs23, caption = "Variance Inflation Factor Comparison Between Models")
+```
+
+The VIF for the mage, mheduc, and mceduc variables has increased substantially, which could indicate that this model violates the multicollinearity assumption.  
 
 ## Third Model Interpretation
 
@@ -375,11 +410,10 @@ The mere fact that the data come from an observational study does not destroy th
 
 As a check on causality, we would wish to see data collected on many variables that we would intuitively believe to be important. For example, whether a mother carries the baby to term or delivers prematurely could have a large effect on baby health; whether there are complications during the pregnancy that affect the growth of the fetus may also play a role; and lastly, general health of the mother may also figure into the equation. When we do not have these variables they get put into the error term, which we are not able to control. This fact together with the lack of information on randomization is a death knell for any causal interpretation.
 
-ction Using Leaps
+Model Selection Using Leaps
 ```{r}
 str(data)
 regsubsets_out <- regsubsets(bwght ~ mage + meduc + monpre + npvis + fage + feduc + cigs + drink + male + mwhte + mblck + fwhte + fblck + npvissq, data = data, nbest = 1, nvmax = NULL, force.in = NULL, force.out = NULL, method = "exhaustive")
-regsubsets_out
 summary_out <- summary(regsubsets_out)
 as.data.frame(summary_out$outmat)
 
