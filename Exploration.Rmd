@@ -6,7 +6,7 @@ date: "4/26/2017"
 output: pdf_document
 ---
 
-```{r setup, echo=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(car)
 library(lmtest)
@@ -73,9 +73,14 @@ We now look at the prospective dependent variables we might use to measure infan
 **Birth Weight**
 
 ```{r bwght}
-ggplot(data = data, aes(x = data$bwght)) + geom_histogram(bins = 50, fill="dodgerblue1", colour = "black") +
-  ggtitle('Birthweight of Infants') + xlab("Baby Birthweight (in grams)") +
-  ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+ggplot(data = data, aes(x = data$bwght)) + 
+      geom_histogram(bins = 50, fill="dodgerblue1", colour = "black") +
+      ggtitle('Birthweight of Infants') + 
+      xlab("Baby Birthweight (in grams)") + ylab('Count') + 
+      theme(axis.text.x = element_text(face = "bold"), 
+            axis.text.y = element_text(face = "bold"), 
+            plot.title = element_text(size = 14, 
+            face = "bold", hjust = 0.5))
 ```
 
 The birth weight variable is fairly normally distributed, even though it has a small negative skew. While it doesn't require any transformation, we could take log base 10 of birth weight, which when interpreted in a regression model would become a percent change in weight. This is a very good candidate for our dependent variable, because it is a continuous quantitative feature that is generally considered a good indicator of overall baby health. Moreover, there is no subjectivity to this measure: an infant is weighed and that measurement is recorded, whereas in the APGAR score - which we discuss below - the doctor makes diagnostic assessments that are subject to human error. If the data were collected from certain hospitals, then the APGAR scores could be correlated with each other by including multiple assessments from the same doctor (other correlations would also creep in).
@@ -99,9 +104,15 @@ Therefore, this means that the APGAR scores are essentially an ordinal variable,
 **Length of Prenatal Care**
 
 ```{r monpre}
-ggplot(data = data, aes(x = data$monpre)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5) +
-  ggtitle('Month Prenatal Care Started') + xlab("Month") +
-  ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) + scale_x_continuous(breaks = c(0:10))
+ggplot(data = data, aes(x = data$monpre)) + 
+        geom_histogram(binwidth = 1, fill="dodgerblue1", 
+                       colour = "black", boundary = -0.5) +
+        ggtitle('Month Prenatal Care Started') + xlab("Month") +
+        ylab('Count') + 
+        theme(axis.text.x = element_text(face = "bold"), 
+              axis.text.y = element_text(face = "bold"), 
+              plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) + 
+        scale_x_continuous(breaks = c(0:10))
 ```
 
 The monpre variable signifies the month of pregnancy at which prenatal care started, and is one of the key variables we expect to help us predict infant health. It ranges from zero to nine, which means there is probably some rounding as prenatal care is unlikely to begin at conception. This would make sense as we are dealing with a discrete variable. The histogram of monpre shows that the data has a heavy positive skew. There are large peaks at one and two, meaning that most women start prenatal care towards the middle of or end of the first trimester. Unfortunately, we do not know what type of prenatal care this variable maps to. When is prenatal care considered to have begun and what counts? We assume that prenatal care has begun with the first visit to a doctor or midwife, although it may truly begin with a phone call.
@@ -109,9 +120,14 @@ The monpre variable signifies the month of pregnancy at which prenatal care star
 **Number of Prenatal Visits** 
 
 ```{r npvis}
-ggplot(data = data, aes(x = data$npvis)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5, bins = 30) +
-  ggtitle('Number of Prenatal Care Visits') + xlab("Prenatal Care Visits") +
-  ylab('Count') + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+ggplot(data = data, aes(x = data$npvis)) + 
+        geom_histogram(binwidth = 1, fill="dodgerblue1", 
+                       colour = "black", boundary = -0.5, bins = 30) +
+        ggtitle('Number of Prenatal Care Visits') + 
+        xlab("Prenatal Care Visits") + ylab('Count') + 
+        theme(axis.text.x = element_text(face = "bold"), 
+              axis.text.y = element_text(face = "bold"), 
+              plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
 ```
 
 The number of prenatal visits is another key metric we expect will have an effect on infant health. It has a strong positive skew, and we can see a massive peak at 12 visits. This could be because mothers with insurance that took part in this study were eligible for a certain number of prenatal visits (possibly 12) for free, leading to a lot of women making exactly that many visits. The question of who pays for these visits could have a confounding effect, because it is more likely for mothers to make more visits if they are free and they would probably make less visits if they aren't. 
@@ -119,7 +135,14 @@ The number of prenatal visits is another key metric we expect will have an effec
 Plotting the bivariate relationship between number of visits and the month at which prenatal care started (see below), we can see the possible outliers in the top right portion of the plot. These  mothers had around 30 visits, even though they started their prenatal care in the 8th month. It could be the case that these mothers were admitted into hospital for a long period for a specific health problem, but we should check if these  points have an influence on the regression line of our models. 
 
 ```{r}
-ggplot(data = data, aes(x =data$monpre , y = data$npvis)) + geom_point() + geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + ggtitle("Month Prenatal Care Began vs. Total Number of Prenatal Visits") + xlab("Month Prenatal Care Began") + ylab("Total Number of Prenatal Visits") + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) + scale_x_continuous(breaks = c(0:9))
+ggplot(data = data, aes(x =data$monpre , y = data$npvis)) + geom_point() + 
+      geom_smooth(method = "loess") + geom_jitter(width = 0.2, height = 0.1) + 
+      ggtitle("Month Prenatal Care Began vs. Total Number of Prenatal Visits") + 
+      xlab("Month Prenatal Care Began") + ylab("Total Number of Prenatal Visits") + 
+      theme(axis.text.x = element_text(face = "bold"), 
+            axis.text.y = element_text(face = "bold"), 
+            plot.title = element_text(size = 14, face = "bold", hjust = 0.5)) + 
+      scale_x_continuous(breaks = c(0:9))
 ```
 
 
@@ -138,7 +161,14 @@ The father and mother age variables both have fairly normal distributions around
 **Education variables**
 
 ```{r meduc}
-ggplot(data = data, aes(x = meduc)) + geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5, bins = 30) + ggtitle("Education Level of Mothers") + xlab("Education (Years)") + ylab("Count") + theme(axis.text.x = element_text(face = "bold"), axis.text.y = element_text(face = "bold"), plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+ggplot(data = data, aes(x = meduc)) + 
+      geom_histogram(binwidth = 1, fill="dodgerblue1", 
+                     colour = "black", boundary = -0.5, bins = 30) + 
+      ggtitle("Education Level of Mothers") + 
+      xlab("Education (Years)") + ylab("Count") + 
+      theme(axis.text.x = element_text(face = "bold"), 
+            axis.text.y = element_text(face = "bold"), 
+            plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
 ```
 
 The mother and father education variables both show signs of graduation effect at the 12 (high school) and 16 (college) mark. Therefore, we can bucket this variable into high school, college, and further education (see Variable Transformation below).
@@ -153,9 +183,8 @@ Additionally, there is about 60% correlation between the education of the mother
 **Cigarettes**
 
 ```{r cigs}
-
 ggplot(data = data, aes(x = cigs)) + 
-  geom_histogram(fill="dodgerblue1", colour = "black", boundary = -0.5) +
+  geom_histogram(binwidth = 1, fill="dodgerblue1", colour = "black", boundary = -0.5) +
   ggtitle("Daily Cigarette Consumption During Pregnancy") + 
   ylab("Count") + 
   xlab("Cigarettes Per Day") + theme(axis.text.x = element_text(face = "bold"), 
@@ -363,7 +392,8 @@ The mother's age and levels of education aren't statistically significant on the
 In our final model, we use all the above variables, but we also add variables related to the father's age and education. We don't expect these to have an effect on the baby's birthweight, although our model may be less reliable because of the higher correlation between the father and mother age parameters. 
 
 ```{r model3}
-model3 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc + fheduc + fceduc + fage, data = data)
+model3 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc + 
+            fheduc + fceduc + fage, data = data)
 plot(model3, which = 1)
 ```
 
@@ -384,7 +414,8 @@ The VIF for the mage, mheduc, and mceduc variables has increased substantially, 
 
 ```{r}
 coeftest(model3, vcov = vcovHC)
-linearHypothesis(model3, c("fheduc = 0", "fceduc = 0", "fage = 0", "mage = 0", "mheduc= 0", "mceduc = 0"), vcov = vcovHC)
+linearHypothesis(model3, c("fheduc = 0", "fceduc = 0", "fage = 0", "mage = 0", 
+                           "mheduc= 0", "mceduc = 0"), vcov = vcovHC)
 ```
 
 The newly added variables don't seem to be individually statistically significant, with the exception of father age. An F-test shows that they are jointly statistically significant as well, on a significance level of 95%. Looking at their coefficients, we can see that most of them seem to point in illogical directions. 
