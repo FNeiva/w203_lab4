@@ -225,7 +225,6 @@ rownames(smoking2) <- c("Frequency")
 knitr::kable(smoking2, caption = "Number of Smoking and Non-Smoking Mothers")
 ```
 
-<<<<<<< HEAD
 Due to very small numbers of average and heavy smokers in the sample, it could perhaps not be representative to our model and those categories would not be of so much value. Therefore, for our models, we decided to use the indicator variable `smoker` instead.
 
 We then proceed to transforming the education variables for mothers and fathers. As analyzed before, the distribution of this variable also suffer from notable spikes due to milestones in a person's educational life, such as completing high school or college. Therefore, it makes sense to use a categorical variable for education to measure each person's level of education, thus avoiding the possible introduction of error from the measurement of years of education. We then separate people based on the categories based on their years of education.
@@ -254,14 +253,6 @@ feduc <- cbind(nrow(data[data$fheduc == 1,]),
 colnames(feduc) <- c("High School", "College", "Further Education")
 rownames(feduc) <- c("Frequency")
 knitr::kable(feduc, caption = "Father Education Categories Frquency")
-=======
-Bivariate Plots
-
-```{r}
-ggplot(data = data, aes(x = data$monpre, y = data$bwght)) + geom_point() + geom_smooth(method = "loess") # This strongly suggests that the month at which you start prenatal care has no impact on the birthweight of the baby.
-
-ggplot(data = data, aes(x = data$npvis, y = data$bwght)) + geom_point() + geom_smooth(method = "loess") # serious outliers towards the lower left of the plot, but these will be outweighed by the many other variables whose x values are the same. There are scarly any data beyond 20 npvis. There seems to be a small positive effect to having over 5 visits.
->>>>>>> 3d9344e857d836a204e2a9d14c048677a59c79a0
 ```
 
 
@@ -399,7 +390,4 @@ plot(regsubsets_out, scale = "adjr2", main = "Adjusted R^2")
 
 # Conclusion
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 3d9344e857d836a204e2a9d14c048677a59c79a0
