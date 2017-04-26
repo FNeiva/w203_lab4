@@ -231,7 +231,7 @@ knitr::kable(smoking2, caption = "Number of Smoking and Non-Smoking Mothers")
 
 Due to very small numbers of average and heavy smokers in the sample, it could perhaps not be representative to our model and those categories would not be of so much value. Therefore, for our models, we decided to use the indicator variable `smoker` instead.
 
-We then proceed to transforming the education variables for mothers and fathers. As analyzed before, the distribution of this variable also suffer from notable spikes due to milestones in a person's educational life, such as completing high school or college. Therefore, it makes sense to use a categorical variable for education to measure each person's level of education, thus avoiding the possible introduction of error from the measurement of years of education. We then separate people based on the categories based on their years of education.
+We then proceed to transforming the education variables for mothers and fathers. As analyzed before, the distribution of this variable also suffers from notable spikes due to milestones in a person's educational life, such as completing high school or college. Therefore, it makes sense to use a categorical variable for education to measure each person's level of education, thus avoiding the possible introduction of error from the measurement of years of education. We then separate people into categories based on their years of education.
 
 ```{r}
 data$mheduc <- ifelse(data$meduc < 12 & !is.na(data$meduc), 1, 0)
@@ -242,7 +242,7 @@ data$mfureduc <- ifelse(data$meduc >= 16  & !is.na(data$meduc), 1, 0)
 data$ffureduc <- ifelse(data$feduc >= 16  & !is.na(data$feduc), 1, 0)
 ```
 
-We then get the following frequencies for each educational category:
+Doing so, we get the following frequencies for each educational category:
 
 ```{r}
 meduc <- cbind(nrow(data[data$mheduc == 1,]),
@@ -284,11 +284,11 @@ plot(model1, which = 1)
 
 **Random Sample**
 
-The information provided in this data set only allows us to make inferences about the sampling procedure of this study and determine whether it is random or not. That is, we can examine the data to see if there is any apparent bias, such as overrepresentation of white mothers vs. other mothers. When we look at the table for race, we see that White, which we are assuming to include both non-hispanic white + hispanic white, represents nearly 89% of our sample. As compared to the national average, our sample does appear to have a larger proportion of white women (not necessarily mothers) and to be underrepresented in black mothers. Whether this is departure represents a violation of the random sample assumption is difficult to assess, because we would expect some differences in our sample as compared to the national average.
+The information provided in this data set only allows us to make inferences about the sampling procedure of this study and determine whether it is random or not. That is, we can examine the data to see if there is any apparent bias, such as overrepresentation of white mothers vs. other mothers. When we look at the table for race, we see that White, which we are assuming to include both non-hispanic white + hispanic white, represents nearly 89% of our sample. As compared to the national average, our sample does appear to have a larger proportion of white women (not necessarily mothers) and to be underrepresented in black mothers. Whether this departure represents a violation of the random sample assumption is difficult to assess, because we would expect some differences in our sample as compared to the national average.
 
 Other small issues we detected may also suggest bias in the sample: a large group of respondents did not answer both the cigarettes and drinks question. This is evidence of a different kind of bias that does not necessarily mean the technique to select the sample was not random. However, it does suggest that in the data collection process, there might have been forces at play that produce a data set that is not random for one reason or another.
 
-In a similar vein, the high median values for the one-minute and five-minute APGAR scores cause us to question how the random sampling was implemented. It may be the case that Such a distribution might actually be representative of a healthy population in a developed country like the USA. Or, the randomization might have occurred at the hospital level, and the healthiness of the infants might be due to some other lurking variables.
+In a similar vein, the high median values for the one-minute and five-minute APGAR scores cause us to question how the random sampling was implemented. It may be the case that such a distribution might actually be representative of a healthy population in a developed country like the USA. Or, the randomization might have occurred at the hospital level, and the healthiness of the infants might be due to some other lurking variables.
 
 Even though we have some evidence that our sample has bias, we cannot definitively say that the random sample assumption is not met. Instead, we believe that this evidence runs counter to any causal claims, but that it does not invalidate the model.
 
@@ -303,11 +303,15 @@ vif(model1)
 
 **Zero-Conditional Mean**
 
-We can determine whether the zero-conditional mean assumption is met by examining the residuals vs. fitted plot, which we have included above. Ideally, we would like to see a horizontal line at 0, but our plot shows a negative trending line from the right end of the mass. The deviations from zero happen towards the fringes of the fitted values, suggesting that there might be high leverage points affecting the fit of the model or that the scarity of data may also be playing a role. Within the most dense portion of the data, we do see that the zero mean conditional is satisfied. Overall, we believe this assumption is largely satisfied, although we have concern for the right end of the graph.
+We can determine whether the zero-conditional mean assumption is met by examining the residuals vs. fitted plot, which we have included above. Ideally, we would like to see a horizontal line at 0, but our plot shows a negative trending line from the right end of the mass. The deviations from zero happen towards the fringes of the fitted values, suggesting that there might be high leverage points affecting the fit of the model or that the scarcity of data may also be playing a role. Within the most dense portion of the data, we do see that the zero mean conditional is satisfied. Overall, we believe this assumption is largely satisfied, although we have concern for the right end of the graph.
 
 **Homoskedasticity**
 
+<<<<<<< HEAD
 Again, we can assess whether the homoskedasticity assumption is met by inspecting the residuals vs. fitted plot. Evidence of fanning in the residuals would suggest that we have heteroskedasticity. From the plot, we do not see much evidence of fanning, but we note that towards each end of the plot, where the data becomes more scarce, the variance seems to decrease. This could be evidence of potential heteroskedasticity, but we don't know if that is genuine or just an artifact of the small number of data points in the extreme. Moreover, the scale-location plot below does not appear to have any particular shape. Therefore, we have choosen to err on the side of caution and use heteroskedasticity-robust standard errors in our subsequent calculations.
+=======
+Again, we can assess whether the homoskedasticity assumption is met by inspecting the residuals vs. fitted plot.  displayed previously and the scale-location plot below, we can see that the middle of the data looks fairly homoskedastic, while variance (and the number of data points) seems to decrease as we move to the left and right. This could be evidence of potential heteroskedasticity, but we don't know if that is genuine or just an artifact of the small number of data points in the extreme. Therefore, we choose to err on the side of caution and use heteroskedasticity-robust standard errors in our calculation.
+>>>>>>> 99cd35dde5b3e63916593f6f57bac385f2f0c905
 
 ```{r}
 plot(model1, which = 3)
@@ -327,7 +331,11 @@ plot(model1, which = 2)
 coeftest(model1, vcov = vcovHC)
 ```
 
+<<<<<<< HEAD
 Our first model only includes the month prenatal care began and the number of visits. We have applied robust errors because of the potential heteroskedasticity we detected in the diagnostic plots above. This model is relatively simple but this belies what is actually going on. The effect size for both months prior and the number of visits are the same, it is only the standard error which is drastically different between the two that causes the differences in statistical interpretation: the number of visits is statistically different from zero while the month prenatal care begins is not. The straightforward interpretation would say the only thing that matters is the number of visits and not when you start the visits. That is, two women who start at different months but have the same number of visits will, on average, produce babies whose weight, and thereby health, is roughly the same. The effect size for the number of visits suggests that a mother who does 12 visits should have a baby whose birthweight is approximately 180 grams (0.4 lbs) more than a mother who does 2 visits. This is not an insignificant difference, but how this difference maps to the health of an infant is difficult to determine. Moreover, a single unit difference in npvis, ceteris paribus, is associated with just over .6 ounces increase in the weight of an infant. This may have no significant practical interpretation.
+=======
+Our first model only includes the month prenatal care began and the number of visits. We have applied White robust errors because of the potential heteroskedasticity we detected in the diagnostic plot. This model is relatively simple but this belies what is actually going on. The effect size for both months prior and the number of visits are the same, it is only the standard error which is drastically different between the two that causes the differences in statistical interpretation. The straightforward interpretation would say the only thing that matters is the number of visits and not when you start the visits. That is, two women who start at different months but have the same number of visits will, on average, produce babies whose health is roughly the same. The effect size for npvis suggests that a mother who does 12 visits should have a baby whose birthweight is approximately 180 grams more than a mother who does 2 visits.
+>>>>>>> 99cd35dde5b3e63916593f6f57bac385f2f0c905
 
 ## Second Model
 
@@ -348,15 +356,15 @@ coeftest(model2, vcov = vcovHC)
 linearHypothesis(model2, c("mage = 0", "mheduc= 0", "mceduc = 0"), vcov = vcovHC)
 ```
 
-We can see that whether the mother smokes or not and whether the baby is male or not has a statistical significance when predicting birth weight. They also seem to have some practical significance, as a male baby will be 73 grams heavier than a female baby, ceteris paribus. Similarly, mothers that smoke will have babies that are 205 grams (a significant amount) lighter than if the mothers didn't smoke. The direction of these coefficients are in line with what we would generally assume.
+We can see that whether the mother smokes or not and whether the baby is male or not has a statistical significance when predicting birth weight. They also seem to have some practical significance, as a male baby will be 73 grams heavier than a female baby, ceteris paribus. Similarly, mothers that smoke will have babies that are 205 grams (a significant amount) lighter than mothers that didn't smoke. The direction of these coefficients are in line with what we would generally assume.
 
-It is also interesting to note that is this model, the month of the first prenatal visit became statistically significant, indicating that for each month closer to the date the baby is born there is a 24 gram increase in birthweight, which would go in the opposite direction of what we would think.
+It is also interesting to note that, in this model, the month of the first prenatal visit became statistically significant, indicating that for each month closer to the date the baby is born there is a 24 gram increase in birthweight, which would go in the opposite direction of what we would think.
 
 The mother's age and levels of education aren't statistically significant on their own, and an F-test confirms that they are not jointly statistically significant as well. 
 
 ## Third Model
 
-In our final model, we use all the above variables, but we also add variables related to the father's age and education. We don't expect these to have an effect on the baby's birthweight, although our model might be less reliable because of the higher correlation between the father and mother age parameters. 
+In our final model, we use all the above variables, but we also add variables related to the father's age and education. We don't expect these to have an effect on the baby's birthweight, although our model may be less reliable because of the higher correlation between the father and mother age parameters. 
 
 ```{r model3}
 model3 = lm(bwght ~ monpre + npvis + smoker + male + mage + mheduc + mceduc + fheduc + fceduc + fage, data = data)
@@ -374,7 +382,7 @@ rownames(vifs23) <- c("(2)","(3)")
 knitr::kable(vifs23, caption = "Variance Inflation Factor Comparison Between Models")
 ```
 
-The VIF for the mage, mheduc, and mceduc variables has increased substantially, which could indicate that this model violates the multicollinearity assumption.  
+The VIF for the mage, mheduc, and mceduc variables has increased substantially, which indicates that, even though there is no perfect multicollinearity, the high correlation between those variables could be biasing the model and inflating the variance in our coefficients.
 
 ## Third Model Interpretation
 
@@ -383,9 +391,13 @@ coeftest(model3, vcov = vcovHC)
 linearHypothesis(model3, c("fheduc = 0", "fceduc = 0", "fage = 0", "mage = 0", "mheduc= 0", "mceduc = 0"), vcov = vcovHC)
 ```
 
-The newly added variables don't seem to be individually statistically significant. Additionally, an F-test shows that they aren't jointly statistically significant as well. Looking at their coefficients, we can see that they seem to point in illogical directions. 
+The newly added variables don't seem to be individually statistically significant, with the exception of father age. An F-test shows that they are jointly statistically significant as well, on a significance level of 95%. Looking at their coefficients, we can see that most of them seem to point in illogical directions. 
+
+The fact that apparently a baby's birthweight would increase by approximately 10 grams for each additional year on father's age could be a potential confounding effect, as we would not expect the father age to positively impact a baby's health. Instead, it could be that older fathers have other characteristics such as being more financially stable that could be influencing this. However, we lack the additional variables that would be required to make such statement, like family income, that could be highly influential in the result. 
 
 ## Model Comparison
+
+The table below displays a comparison between all three models developed in this report. All standard errors have been calculated using heteroskedastic-robust methods. 
 
 ```{r, results  = 'asis', include = F}
 model1stat <- coeftest(model1, vcov = vcovHC)
@@ -406,11 +418,7 @@ stargazer(model1, model2, model3, type = "latex", report = "vcstp*", header = FA
 
 ```
 
-TO DO: here we can compare practical/statistical significance, std errors and AIC values of the three models.
-
-
-
-When we add in our control variables, we clearly witness 
+When we add in our control variables in the second model, we clearly witness 
 
 # Causality discussion
 
