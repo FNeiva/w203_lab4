@@ -196,22 +196,64 @@ This study covers 1620 white, 108 black and 99 women of other races. The results
 
 ## Variable transformation
 
-```{r}
-data$nonsmoker <- ifelse(data$cigs == 0, 1, 0)
-data$smoker <- ifelse(data$cigs > 0, 1, 0)
-data$lightsmoker <- ifelse(data$cigs > 0 & data$cigs <= 10, 1, 0)
-data$occsmoker <- ifelse(data$cigs > 10 & data$cigs <= 20, 1, 0)
-data$heavysmoker <- ifelse(data$cigs > 20, 1, 0)
-data$drinker <- ifelse(data$drink >= 1, 1, 0)
+As stated in the prior section, a few transformations would be useful for some of the variables of interest. First of all, we analyze the case of the `cigs` variable, which measures the number of cigarettes smoked per day. As stated previously, this variable shows a distribution with lots of spikes in values multiple of 10, which suggest that maybe the mothers were surveyed and tended to round the number of cigarettes smoked a day either up or down. Therefore, the use of such imprecise numbers could introduce a great amount of error in our model. A transformation to an indicator or categorial variable, then, would be of interest.
 
-data$mheduc <- ifelse(data$meduc < 12, 1, 0)
-data$fheduc <- ifelse(data$feduc < 12, 1, 0)
-data$mceduc <- ifelse(data$meduc >= 12 & data$meduc <16, 1, 0)
-data$fceduc <- ifelse(data$feduc >= 12 & data$feduc <16, 1, 0)
-data$mfureduc <- ifelse(data$meduc >= 16, 1, 0)
-data$ffureduc <- ifelse(data$feduc >= 16, 1, 0)
+From some studies conducted, we could find that the average smoker in the United States tend to smoke somewhere between 10 to 20 cigarettes a day, depending on their state. Therefore, we have segregated smokers into four different categories: non-smoker (zero cigarettes a day), light smoker (more than zero but less or equal to ten cigarettes a day), average smoker (more than 10 and less or equal to 20 cigarettes a day) and heavy smoker (more than 20 cigarettes a day). This segregation would allow us to control the outcome for different levels of smoking in our model, if desired. We also created an indicator variable if the mother is a smoker or not, being considered a smoker if she smoked one or more cigarettes a day.
+
+```{r}
+data$nonsmoker <- ifelse(data$cigs == 0 & !is.na(data$cigs), 1, 0)
+data$smoker <- ifelse(data$cigs > 0 & !is.na(data$cigs), 1, 0)
+data$lightsmoker <- ifelse(data$cigs > 0 & data$cigs <= 10 & !is.na(data$cigs), 1, 0)
+data$occsmoker <- ifelse(data$cigs > 10 & data$cigs <= 20 & !is.na(data$cigs), 1, 0)
+data$heavysmoker <- ifelse(data$cigs > 20 & !is.na(data$cigs), 1, 0)
 ```
 
+By analyzing the transformed variables, we get the following frequencies:
+
+```{r}
+smoking <- cbind(nrow(data[data$nonsmoker == 1,]),
+                 nrow(data[data$lightsmoker == 1,]),
+                 nrow(data[data$occsmoker == 1,]),
+                 nrow(data[data$heavysmoker == 1,]))
+colnames(smoking) <- c("Non-Smoker", "Light Smoker", "Average Smoker", "Heavy Smoker")
+rownames(smoking) <- c("Frequency")
+knitr::kable(smoking, caption = "Smoking Mother Categories Frquency")
+smoking2 <- cbind(nrow(data[data$nonsmoker == 1,]),
+                 nrow(data[data$smoker == 1,]))
+colnames(smoking2) <- c("Non-Smoker", "Smoker")
+rownames(smoking2) <- c("Frequency")
+knitr::kable(smoking2, caption = "Number of Smoking and Non-Smoking Mothers")
+```
+
+Due to very small numbers of average and heavy smokers in the sample, it could perhaps not be representative to our model and those categories would not be of so much value. Therefore, for our models, we decided to use the indicator variable `smoker` instead.
+
+We then proceed to transforming the education variables for mothers and fathers. As analyzed before, the distribution of this variable also suffer from notable spikes due to milestones in a person's educational life, such as completing high school or college. Therefore, it makes sense to use a categorical variable for education to measure each person's level of education, thus avoiding the possible introduction of error from the measurement of years of education. We then separate people based on the categories based on their years of education.
+
+```{r}
+data$mheduc <- ifelse(data$meduc < 12 & !is.na(data$meduc), 1, 0)
+data$fheduc <- ifelse(data$feduc < 12 & !is.na(data$feduc), 1, 0)
+data$mceduc <- ifelse(data$meduc >= 12 & data$meduc <16  & !is.na(data$meduc), 1, 0)
+data$fceduc <- ifelse(data$feduc >= 12 & data$feduc <16  & !is.na(data$feduc), 1, 0)
+data$mfureduc <- ifelse(data$meduc >= 16  & !is.na(data$meduc), 1, 0)
+data$ffureduc <- ifelse(data$feduc >= 16  & !is.na(data$feduc), 1, 0)
+```
+
+We then get the following frequencies for each educational category:
+
+```{r}
+meduc <- cbind(nrow(data[data$mheduc == 1,]),
+                 nrow(data[data$mceduc == 1,]),
+                 nrow(data[data$mfureduc == 1,]))
+colnames(meduc) <- c("High School", "College", "Further Education")
+rownames(meduc) <- c("Frequency")
+knitr::kable(meduc, caption = "Mother Education Categories Frquency")
+feduc <- cbind(nrow(data[data$fheduc == 1,]),
+                 nrow(data[data$fceduc == 1,]),
+                 nrow(data[data$ffureduc == 1,]))
+colnames(feduc) <- c("High School", "College", "Further Education")
+rownames(feduc) <- c("Frequency")
+knitr::kable(feduc, caption = "Father Education Categories Frquency")
+```
 
 
 # Model Development
@@ -306,9 +348,16 @@ The newly added variables don't seem to be individually statistically significan
 ## Model Comparison
 
 ```{r, results  = 'asis'}
-stargazer(model1, model2, model3, type = "latex", report = "vc", header = FALSE,
+model1stat <- coeftest(model1, vcov = vcovHC)
+model2stat <- coeftest(model2, vcov = vcovHC)
+model3stat <- coeftest(model3, vcov = vcovHC)
+stargazer(model1, model2, model3, type = "latex", report = "vcstp*", header = FALSE,
+          coef = list(model1stat[,"Estimate"],model2stat[,"Estimate"],model3stat[,"Estimate"]),
+          se = list(model1stat[,"Std. Error"],model2stat[,"Std. Error"],model3stat[,"Std. Error"]),
+          t.auto = TRUE, p.auto = TRUE,
           title = "Prenatal Care Influence In Birthweight",
-          keep.stat = c("rsq", "aic", "n"),
+          keep.stat = c("rsq", "aic", "n", "adj.rsq"),
+          single.row = TRUE,
           omit.table.layout = "n",
           add.lines = list(c("AIC", 
                              round(AIC(model1),digits=3), 
@@ -349,90 +398,4 @@ plot(regsubsets_out, scale = "adjr2", main = "Adjusted R^2")
 
 # Conclusion
 
-# TO BE REMOVED:
 
-Correlation Matrix
-```{r}
-cor_test <- as.data.frame(cor(data, use = "complete.obs"))
-cor_test
-```
-
-Some high correlations:
-Mage and meduc = 0.33
-mage and fage = 0.689
-feduc and meduc = 0.59
-magesq & mage = 0.99
-magesq & meduc  0.319
-npvissq & npvis = 0.93
-
-#First Model: Prenatal Care
-```{r}
-mod_key <- lm(bwght ~ monpre + npvis, data = data)
-summary(mod_key)
-plot(mod_key)
-```
-
-#Second Model: Prenatal Care + Helpful Covariates
-```{r}
-mod_cov <- lm(bwght ~ monpre + npvis + cigs + meduc + mage, data = data)
-summary(mod_cov)
-plot(mod_cov)
-```
-
-#Third Model: Prenatal Care + Helpful Covariates + Assumption Violating Covariates
-```{r}
-mod_cov_minus <- lm(bwght ~ monpre + npvis + cigs + feduc + fage + omaps + male, data = data)
-summary(mod_cov_minus)
-plot(mod_cov_minus)
-```
-
-# Different model testing
-
-```{r}
-# Best models
-model10 <- lm(bwght ~ npvis + monpre + smoker + drink + male + fage + fwhte + fblck + mwhte + mblck + mheduc + mceduc, data=data) # model 9 using smoker indicator instead of categorical
-model9 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + mwhte + mblck + mheduc + mceduc, data=data) # improved model 8
-model8 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + mheduc + mceduc, data=data)
-model6 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth, data=data)
-
-str(data)
-
-model6_adj <- lm(bwght ~ npvis + monpre + smoker  + male + mage + mheduc + mceduc, data=data)
-
-summary(model6_adj)
-
-model6_adj <- lm(bwght ~ npvis + monpre + smoker + drink + male + fage + fwhte + fblck + mwhte + mblck + mheduc + mceduc, data=data)
-
-
-model1 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
-model4 <- lm(lbwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage, data=data)
-model5 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth, data=data)
-
-stargazer(model6, model1, type = 'latex')
-summary(model6)
-
-# Trying to use a drinker indicator variable
-model2 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drinker + male + fage, data=data)
-
-# Using cigs instead of indicator variable
-model3 <- lm(bwght ~ npvis + monpre + cigs + male + fage, data=data)
-
-# With almost every variable
-model7 <- lm(bwght ~ npvis + monpre + lightsmoker + occsmoker + heavysmoker + drink + male + fage + fwhte + fblck + foth + mwhte + mblck + moth + feduc, data=data)
-
-# Stan model suggestions: should we use npvissq? It could be that number of visits has an effect that changes with the number of visits (parabolic relationship)
-
-# Model below marked for deletion
-models2 = lm(bwght ~ monpre + npvis + npvissq, data = data)
-AIC(models2)
-
-summary(models2)
-
-coeftest(models2, vcov = vcovHC)
-AIC(model3) # 25615.21
-AIC(model4) # -634.9094, cannot compare because dependent var transformed
-AIC(model5) # 25484.27
-AIC(model6) # 25484.23
-AIC(model7) # 25080.77
-desc
-```
