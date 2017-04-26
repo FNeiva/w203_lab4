@@ -307,11 +307,8 @@ We can determine whether the zero-conditional mean assumption is met by examinin
 
 **Homoskedasticity**
 
-<<<<<<< HEAD
+
 Again, we can assess whether the homoskedasticity assumption is met by inspecting the residuals vs. fitted plot. Evidence of fanning in the residuals would suggest that we have heteroskedasticity. From the plot, we do not see much evidence of fanning, but we note that towards each end of the plot, where the data becomes more scarce, the variance seems to decrease. This could be evidence of potential heteroskedasticity, but we don't know if that is genuine or just an artifact of the small number of data points in the extreme. Moreover, the scale-location plot below does not appear to have any particular shape. Therefore, we have choosen to err on the side of caution and use heteroskedasticity-robust standard errors in our subsequent calculations.
-=======
-Again, we can assess whether the homoskedasticity assumption is met by inspecting the residuals vs. fitted plot.  displayed previously and the scale-location plot below, we can see that the middle of the data looks fairly homoskedastic, while variance (and the number of data points) seems to decrease as we move to the left and right. This could be evidence of potential heteroskedasticity, but we don't know if that is genuine or just an artifact of the small number of data points in the extreme. Therefore, we choose to err on the side of caution and use heteroskedasticity-robust standard errors in our calculation.
->>>>>>> 99cd35dde5b3e63916593f6f57bac385f2f0c905
 
 ```{r}
 plot(model1, which = 3)
@@ -331,11 +328,8 @@ plot(model1, which = 2)
 coeftest(model1, vcov = vcovHC)
 ```
 
-<<<<<<< HEAD
+
 Our first model only includes the month prenatal care began and the number of visits. We have applied robust errors because of the potential heteroskedasticity we detected in the diagnostic plots above. This model is relatively simple but this belies what is actually going on. The effect size for both months prior and the number of visits are the same, it is only the standard error which is drastically different between the two that causes the differences in statistical interpretation: the number of visits is statistically different from zero while the month prenatal care begins is not. The straightforward interpretation would say the only thing that matters is the number of visits and not when you start the visits. That is, two women who start at different months but have the same number of visits will, on average, produce babies whose weight, and thereby health, is roughly the same. The effect size for the number of visits suggests that a mother who does 12 visits should have a baby whose birthweight is approximately 180 grams (0.4 lbs) more than a mother who does 2 visits. This is not an insignificant difference, but how this difference maps to the health of an infant is difficult to determine. Moreover, a single unit difference in npvis, ceteris paribus, is associated with just over .6 ounces increase in the weight of an infant. This may have no significant practical interpretation.
-=======
-Our first model only includes the month prenatal care began and the number of visits. We have applied White robust errors because of the potential heteroskedasticity we detected in the diagnostic plot. This model is relatively simple but this belies what is actually going on. The effect size for both months prior and the number of visits are the same, it is only the standard error which is drastically different between the two that causes the differences in statistical interpretation. The straightforward interpretation would say the only thing that matters is the number of visits and not when you start the visits. That is, two women who start at different months but have the same number of visits will, on average, produce babies whose health is roughly the same. The effect size for npvis suggests that a mother who does 12 visits should have a baby whose birthweight is approximately 180 grams more than a mother who does 2 visits.
->>>>>>> 99cd35dde5b3e63916593f6f57bac385f2f0c905
 
 ## Second Model
 
