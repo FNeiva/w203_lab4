@@ -391,9 +391,9 @@ The fact that apparently a baby's birthweight would increase by approximately 10
 
 ## Model Comparison
 
-The table below displays a comparison between all three models developed in this report. All standard errors have been calculated using heteroskedastic-robust methods. 
+Table 11 displayed below shows a comparison between all three models developed in this report. All standard errors in the table have been calculated using heteroskedastic-robust methods. 
 
-```{r, results  = 'asis'}
+```{r, results  = 'asis', echo=FALSE}
 model1stat <- coeftest(model1, vcov = vcovHC)
 model2stat <- coeftest(model2, vcov = vcovHC)
 model3stat <- coeftest(model3, vcov = vcovHC)
@@ -412,13 +412,13 @@ stargazer(model1, model2, model3, type = "latex", report = "vcstp*", header = FA
 
 ```
 
-When we add in our control variables in the second model, we clearly witness a great improvement to $R^2$, meaning that a greater part of the variation in our model is now explained by the new variables added. Although this is expected, as $R^2$ always increases when adding new variables, other measurements used that penalized the model for added complexity such as the Adjusted $R^2$ and Akaike Information Criterion, also displayed in the table above, both demonstrate improvement in model fit.
+When we add in our control variables in the second model, we clearly witness a great improvement to $R^2$, meaning that a greater part of the variation in our model is now explained by the new variables added. Although this is expected, as $R^2$ always increases when adding new variables, other measurements used that penalize the model for added complexity such as the Adjusted $R^2$ and Akaike Information Criterion, also displayed in table 11, both demonstrate improvement in model fit.
 
 Two of the new variables introduced in the second model have great statistical significance, `smoker` and `male`. Both cases also display practical significance, with the coefficient values indicating that a male baby is likely to be 73 grams heavier when everything else is held constant and that a smoker mother is likely to have a baby 205 grams lighter than a non-smoking mother, ceteris paribus. The addition of new variables also made the initial month for prenatal care statistically significant at a 95% confidence level. This indicates that mothers would be likely to have a baby 24 grams heavier for each month closer to conception when they begin their prenatal care, which goes against our preconceived notion that longer prenatal care would be more likely to result in healthier babies.
 
 For the third model, we added the variables containing age and education for the babys' fathers. By doing this, we note that we have a better Adjusted $R^2$ and Akaike Information Criterion value indicating that this model is a better fit than the previous one and the addition of new variables is worthwhile in explaining the variation in the data. However, we must note that, as explained before, given that the father age and education variables are highly correlated with the mother age and education variables, their addition also increased the Variance Inflation Factor in our regression coefficients. Therefore, the trade-off between better fit and increased variance should be thoroughly analyzed before choosing between one or the other.
 
-By verifying the third model, we can see that the father age is highly statistically significant. Its coefficient indicates that for each additional year in the father age, holding everything else constant, the baby is likely to present an approximate 9.4 grams increase in weight. While this may seem a small value, a 40-year-old father would probably generate a baby 94 grams heavier than a 30-year-old father. As explained before, it goes against the logic that older fathers would give birth to healthier babies, so this could be a potential confounding effect that we should be aware of.
+By verifying the third model, we can see that all previous significant variables remained significant, except for the month prenatal care began, and that the father age is highly statistically significant. Its coefficient indicates that for each additional year in the father age, holding everything else constant, the baby is likely to present an approximate 9.4 grams increase in weight. While this may seem a small value, a 40-year-old father would probably generate a baby 94 grams heavier than a 30-year-old father. As explained before, it goes against the logic that older fathers would give birth to healthier babies, so this could be a potential confounding effect that we should be aware of that is probably related to family income, which we would expect to be higher for older fathers, or the capability of older fathers to provide for mothers while they are dedicated to their pregnancy.
 
 # Causality discussion
 
